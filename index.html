@@ -156,7 +156,7 @@
 
     <div class="card" id="openingCard">
       <h2>Opening Readings <span style="font-weight:400; color:var(--ink-soft); font-size:0.85rem;">(8:00 AM – 12:00 PM)</span></h2>
-      <div class="sub">Enter once every morning, between 8:00 AM and 12:00 PM. Can only be saved 1 time per day.</div>
+      <div class="sub" id="openingSub">Enter once every morning, between 8:00 AM and 12:00 PM. Can only be saved 1 time per day.</div>
       <div id="openingLockNote" class="setup-warning hidden">✅ Opening readings already saved for this date.</div>
       <div id="openingTimeNote" class="setup-warning hidden">⏰ Opening readings can only be entered between 8:00 AM and 12:00 PM.</div>
 
@@ -191,7 +191,7 @@
 
     <div class="card" id="closingCard">
       <h2>Closing Readings <span style="font-weight:400; color:var(--ink-soft); font-size:0.85rem;">(12:01 PM – 5:00 PM)</span></h2>
-      <div class="sub">Enter once between 12:01 PM and 5:00 PM, after opening readings are saved. Can only be saved 1 time per day.</div>
+      <div class="sub" id="closingSub">Enter once between 12:01 PM and 5:00 PM, after opening readings are saved. Can only be saved 1 time per day.</div>
       <div id="closingLockNote" class="setup-warning hidden">✅ Closing readings already saved for this date.</div>
       <div id="closingWaitNote" class="setup-warning hidden">⏳ Opening readings must be saved first (by any staff) before closing can be entered.</div>
       <div id="closingTimeNote" class="setup-warning hidden">⏰ Closing readings can only be entered between 12:01 PM and 5:00 PM.</div>
@@ -229,12 +229,6 @@
 
   <!-- ============ ADMIN VIEW (admin only) ============ -->
   <section id="adminView" class="hidden">
-
-    <div class="card">
-      <h2>Example Report Layout</h2>
-      <div class="sub">Sample of a simple summary layout (for reference only — the live table below has the full pump-by-pump detail).</div>
-      <img src="data:image/png;base64,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" alt="Example simple report layout showing Date, Diesel, and Kerosene columns with Open, Close, Tank Open, and Tank Close rows" style="width:100%; max-width:480px; display:block; margin:0 auto; border-radius:10px; border:1.5px solid var(--line);">
-    </div>
 
     <div class="card">
       <h2>Past Entries</h2>
@@ -384,6 +378,12 @@ function startApp(){
   }
   document.getElementById('entryDate').value = todayStr();
   document.getElementById('entryDate').disabled = true; // 1 entry per day, keep it on today
+
+  if(session.role === 'admin'){
+    document.getElementById('openingSub').textContent = 'As an admin, you can enter opening readings at any time.';
+    document.getElementById('closingSub').textContent = 'As an admin, you can enter closing readings at any time.';
+  }
+
   loadTodayStatus();
 }
 
@@ -412,8 +412,9 @@ function withinWindow(startH, startM, endH, endM){
   const mins = now.getHours()*60 + now.getMinutes();
   return mins >= (startH*60+startM) && mins <= (endH*60+endM);
 }
-function isOpeningWindow(){ return withinWindow(8,0,12,0); }
-function isClosingWindow(){ return withinWindow(12,1,17,0); }
+// Admins can enter data at any time; laborers are restricted to the fixed windows.
+function isOpeningWindow(){ return (session && session.role === 'admin') || withinWindow(8,0,12,0); }
+function isClosingWindow(){ return (session && session.role === 'admin') || withinWindow(12,1,17,0); }
 
 async function loadTodayStatus(){
   const date = document.getElementById('entryDate').value;
