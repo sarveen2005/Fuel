@@ -112,7 +112,7 @@
   <div class="card">
     <div id="setupWarning" class="setup-warning hidden">
       ⚠️ This page isn't connected to Google Sheets yet. Open <code>index.html</code> and set
-      <code>SCRIPT_URL</code> to your Apps Script Web App URL. See SETUP_INSTRUCTIONS.md.
+      <code>"https://script.google.com/macros/s/AKfycbwmyjHW3x7gT8z2mT_T-uA9jQnR32Qnmm_7Tt-CFk-FOFgzIKG4F8snzTouUA4wXkpJoA/exec";</code> to your Apps Script Web App URL. See SETUP_INSTRUCTIONS.md.
     </div>
     <label>Username</label>
     <input type="text" id="loginUser" autocomplete="username">
@@ -287,7 +287,7 @@
 // =========================================================
 // CONFIG - paste your Google Apps Script Web App URL below
 // =========================================================
-const SCRIPT_URL = "PASTE_YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwmyjHW3x7gT8z2mT_T-uA9jQnR32Qnmm_7Tt-CFk-FOFgzIKG4F8snzTouUA4wXkpJoA/exec";
 
 let session = null; // {username, role, fullName, password}
 let currentEntries = [];
