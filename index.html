@@ -153,6 +153,7 @@
       <h2>Opening Readings <span style="font-weight:400; color:var(--ink-soft); font-size:0.85rem;">(Morning)</span></h2>
       <div class="sub">Enter once every morning. Can only be saved 1 time per day.</div>
       <div id="openingLockNote" class="setup-warning hidden">✅ Opening readings already saved for this date.</div>
+      <div id="openingTimeNote" class="setup-warning hidden">⏰ Opening readings can only be entered between 8:00 AM and 10:00 AM.</div>
 
       <div class="pump diesel">
         <div class="pump-title">Diesel Pump 1</div>
@@ -188,6 +189,7 @@
       <div class="sub">Enter once every evening, after opening readings are saved. Can only be saved 1 time per day.</div>
       <div id="closingLockNote" class="setup-warning hidden">✅ Closing readings already saved for this date.</div>
       <div id="closingWaitNote" class="setup-warning hidden">⏳ Opening readings must be saved first (by any staff) before closing can be entered.</div>
+      <div id="closingTimeNote" class="setup-warning hidden">⏰ Closing readings can only be entered between 3:00 PM and 5:00 PM.</div>
 
       <div class="pump diesel">
         <div class="pump-title">Diesel Pump 1</div>
@@ -229,7 +231,16 @@
       <div class="table-wrap">
         <table>
           <thead>
-            <tr><th>Date</th><th>Entered by</th><th>Diesel Sold</th><th>Kero Sold</th><th>Diesel Tank Close</th><th>Kero Tank Close</th><th></th></tr>
+            <tr>
+              <th>Date</th><th>Entered by</th>
+              <th>Diesel1 Open</th><th>Diesel1 Close</th>
+              <th>Diesel2 Open</th><th>Diesel2 Close</th>
+              <th>Kero1 Open</th><th>Kero1 Close</th>
+              <th>Kero2 Open</th><th>Kero2 Close</th>
+              <th>Diesel Tank Open</th><th>Diesel Tank Close</th>
+              <th>Kero Tank Open</th><th>Kero Tank Close</th>
+              <th></th>
+            </tr>
           </thead>
           <tbody id="adminTableBody"></tbody>
         </table>
@@ -373,6 +384,15 @@ function rowHasValues(row, keys){
   return keys.some(k => row[k] !== undefined && row[k] !== '' && row[k] !== null);
 }
 
+// Opening readings: only allowed 8:00am - 10:00am. Closing readings: only allowed 3:00pm - 5:00pm.
+function withinWindow(startH, startM, endH, endM){
+  const now = new Date();
+  const mins = now.getHours()*60 + now.getMinutes();
+  return mins >= (startH*60+startM) && mins <= (endH*60+endM);
+}
+function isOpeningWindow(){ return withinWindow(8,0,10,0); }
+function isClosingWindow(){ return withinWindow(15,0,17,0); }
+
 async function loadTodayStatus(){
   const date = document.getElementById('entryDate').value;
   todayRow = null;
@@ -391,15 +411,19 @@ async function loadTodayStatus(){
 function updateEntryLockState(){
   const openingDone = rowHasValues(todayRow, SHEET_OPEN_KEYS);
   const closingDone = rowHasValues(todayRow, SHEET_CLOSE_KEYS);
+  const openWindowOk = isOpeningWindow();
+  const closeWindowOk = isClosingWindow();
 
-  OPEN_FIELDS.forEach(id => document.getElementById(id).disabled = openingDone);
-  document.getElementById('submitOpenBtn').disabled = openingDone;
+  OPEN_FIELDS.forEach(id => document.getElementById(id).disabled = openingDone || !openWindowOk);
+  document.getElementById('submitOpenBtn').disabled = openingDone || !openWindowOk;
   document.getElementById('openingLockNote').classList.toggle('hidden', !openingDone);
+  document.getElementById('openingTimeNote').classList.toggle('hidden', openingDone || openWindowOk);
 
-  CLOSE_FIELDS.forEach(id => document.getElementById(id).disabled = closingDone || !openingDone);
-  document.getElementById('submitCloseBtn').disabled = closingDone || !openingDone;
+  CLOSE_FIELDS.forEach(id => document.getElementById(id).disabled = closingDone || !openingDone || !closeWindowOk);
+  document.getElementById('submitCloseBtn').disabled = closingDone || !openingDone || !closeWindowOk;
   document.getElementById('closingLockNote').classList.toggle('hidden', !closingDone);
   document.getElementById('closingWaitNote').classList.toggle('hidden', openingDone || closingDone);
+  document.getElementById('closingTimeNote').classList.toggle('hidden', !openingDone || closingDone || closeWindowOk);
 }
 
 // ---------- navigation ----------
@@ -427,6 +451,9 @@ document.getElementById('submitOpenBtn').addEventListener('click', async ()=>{
   if(!date){ msg.classList.add('show','bad'); msg.textContent = 'Please enter the date.'; return; }
   if(rowHasValues(todayRow, SHEET_OPEN_KEYS)){
     msg.classList.add('show','bad'); msg.textContent = 'Opening readings already saved today.'; return;
+  }
+  if(!isOpeningWindow()){
+    msg.classList.add('show','bad'); msg.textContent = 'Opening readings can only be entered between 8:00 AM and 10:00 AM.'; return;
   }
 
   const data = {
@@ -477,6 +504,9 @@ document.getElementById('submitCloseBtn').addEventListener('click', async ()=>{
   }
   if(rowHasValues(todayRow, SHEET_CLOSE_KEYS)){
     msg.classList.add('show','bad'); msg.textContent = 'Closing readings already saved today.'; return;
+  }
+  if(!isClosingWindow()){
+    msg.classList.add('show','bad'); msg.textContent = 'Closing readings can only be entered between 3:00 PM and 5:00 PM.'; return;
   }
 
   const opnum = key => parseFloat(todayRow[key]) || 0;
@@ -529,18 +559,25 @@ function renderAdminTable(){
   body.innerHTML = '';
   currentEntries
     .slice()
-    .sort((a,b)=> (a.Date < b.Date ? 1 : -1))
+    .sort((a,b)=> (a.Date < b.Date ? 1 : (a.Date > b.Date ? -1 : 0)))
     .forEach(row=>{
       const tr = document.createElement('tr');
-      const dieselSold = (row.Diesel1_Total||0) + (row.Diesel2_Total||0);
-      const keroSold = (row.Kero1_Total||0) + (row.Kero2_Total||0);
+      const f = v => (v === undefined || v === null || v === '') ? '—' : fmt(v);
       tr.innerHTML = `
         <td>${row.Date}</td>
         <td>${row.Staff}</td>
-        <td>${fmt(dieselSold)}</td>
-        <td>${fmt(keroSold)}</td>
-        <td>${fmt(row.DieselTank_Close)}</td>
-        <td>${fmt(row.KeroTank_Close)}</td>
+        <td>${f(row.Diesel1_Open)}</td>
+        <td>${f(row.Diesel1_Close)}</td>
+        <td>${f(row.Diesel2_Open)}</td>
+        <td>${f(row.Diesel2_Close)}</td>
+        <td>${f(row.Kero1_Open)}</td>
+        <td>${f(row.Kero1_Close)}</td>
+        <td>${f(row.Kero2_Open)}</td>
+        <td>${f(row.Kero2_Close)}</td>
+        <td>${f(row.DieselTank_Open)}</td>
+        <td>${f(row.DieselTank_Close)}</td>
+        <td>${f(row.KeroTank_Open)}</td>
+        <td>${f(row.KeroTank_Close)}</td>
         <td><span class="edit-link" data-id="${row.ID}">Edit</span></td>
       `;
       body.appendChild(tr);
@@ -613,6 +650,8 @@ document.getElementById('saveEditBtn').addEventListener('click', async ()=>{
     msg.textContent = 'Could not save changes. (' + err.message + ')';
   }
 });
+
+setInterval(()=>{ if(session) updateEntryLockState(); }, 60000);
 
 checkConfigured();
 </script>
