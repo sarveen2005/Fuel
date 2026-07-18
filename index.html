@@ -149,76 +149,73 @@
       <input type="date" id="entryDate">
     </div>
 
-    <div class="card">
-      <h2>Fuel Pumps</h2>
-      <div class="sub">Enter today's opening and closing meter readings</div>
+    <div class="card" id="openingCard">
+      <h2>Opening Readings <span style="font-weight:400; color:var(--ink-soft); font-size:0.85rem;">(Morning)</span></h2>
+      <div class="sub">Enter once every morning. Can only be saved 1 time per day.</div>
+      <div id="openingLockNote" class="setup-warning hidden">✅ Opening readings already saved for this date.</div>
 
       <div class="pump diesel">
-        <div class="pump-title">Diesel Pump 1 <span class="total-pill" id="d1total">0.00 L sold</span></div>
-        <div class="row">
-          <div><label>Opening reading</label><input type="number" step="0.01" inputmode="decimal" id="d1open"></div>
-          <div><label>Closing reading</label><input type="number" step="0.01" inputmode="decimal" id="d1close"></div>
-        </div>
+        <div class="pump-title">Diesel Pump 1</div>
+        <label>Opening reading</label><input type="number" step="0.01" inputmode="decimal" id="d1open">
       </div>
-
       <div class="pump diesel">
-        <div class="pump-title">Diesel Pump 2 <span class="total-pill" id="d2total">0.00 L sold</span></div>
-        <div class="row">
-          <div><label>Opening reading</label><input type="number" step="0.01" inputmode="decimal" id="d2open"></div>
-          <div><label>Closing reading</label><input type="number" step="0.01" inputmode="decimal" id="d2close"></div>
-        </div>
+        <div class="pump-title">Diesel Pump 2</div>
+        <label>Opening reading</label><input type="number" step="0.01" inputmode="decimal" id="d2open">
       </div>
-
       <div class="pump kero">
-        <div class="pump-title">Kerosene Pump 1 <span class="total-pill" id="k1total">0.00 L sold</span></div>
-        <div class="row">
-          <div><label>Opening reading</label><input type="number" step="0.01" inputmode="decimal" id="k1open"></div>
-          <div><label>Closing reading</label><input type="number" step="0.01" inputmode="decimal" id="k1close"></div>
-        </div>
+        <div class="pump-title">Kerosene Pump 1</div>
+        <label>Opening reading</label><input type="number" step="0.01" inputmode="decimal" id="k1open">
       </div>
-
       <div class="pump kero">
-        <div class="pump-title">Kerosene Pump 2 <span class="total-pill" id="k2total">0.00 L sold</span></div>
-        <div class="row">
-          <div><label>Opening reading</label><input type="number" step="0.01" inputmode="decimal" id="k2open"></div>
-          <div><label>Closing reading</label><input type="number" step="0.01" inputmode="decimal" id="k2close"></div>
-        </div>
+        <div class="pump-title">Kerosene Pump 2</div>
+        <label>Opening reading</label><input type="number" step="0.01" inputmode="decimal" id="k2open">
       </div>
-    </div>
-
-    <div class="card">
-      <h2>Tank Balances</h2>
-      <div class="sub">Enter today's opening and closing tank levels (liters)</div>
-
       <div class="pump tankd">
-        <div class="pump-title">Diesel Tank <span class="total-pill" id="tdtotal">0.00 L used</span></div>
-        <div class="row">
-          <div><label>Opening balance</label><input type="number" step="0.01" inputmode="decimal" id="tdopen"></div>
-          <div><label>Closing balance</label><input type="number" step="0.01" inputmode="decimal" id="tdclose"></div>
-        </div>
+        <div class="pump-title">Diesel Tank</div>
+        <label>Opening balance</label><input type="number" step="0.01" inputmode="decimal" id="tdopen">
+      </div>
+      <div class="pump tankk">
+        <div class="pump-title">Kerosene Tank</div>
+        <label>Opening balance</label><input type="number" step="0.01" inputmode="decimal" id="tkopen">
       </div>
 
-      <div class="pump tankk">
-        <div class="pump-title">Kerosene Tank <span class="total-pill" id="tktotal">0.00 L used</span></div>
-        <div class="row">
-          <div><label>Opening balance</label><input type="number" step="0.01" inputmode="decimal" id="tkopen"></div>
-          <div><label>Closing balance</label><input type="number" step="0.01" inputmode="decimal" id="tkclose"></div>
-        </div>
-      </div>
+      <div id="openMsg" class="msg"></div>
+      <button class="submit-btn" id="submitOpenBtn">Save Opening Readings</button>
     </div>
 
-    <div id="entryMsg" class="msg"></div>
+    <div class="card" id="closingCard">
+      <h2>Closing Readings <span style="font-weight:400; color:var(--ink-soft); font-size:0.85rem;">(Evening)</span></h2>
+      <div class="sub">Enter once every evening, after opening readings are saved. Can only be saved 1 time per day.</div>
+      <div id="closingLockNote" class="setup-warning hidden">✅ Closing readings already saved for this date.</div>
+      <div id="closingWaitNote" class="setup-warning hidden">⏳ Opening readings must be saved first (by any staff) before closing can be entered.</div>
 
-    <button class="submit-btn" id="submitBtn">Save Today's Readings</button>
-
-    <div class="card" id="summaryCard" style="display:none;">
-      <h2>Today's Summary</h2>
-      <div class="summary-grid">
-        <div><span class="num" id="sumDiesel">0</span><span class="lbl">Total Diesel Sold (L)</span></div>
-        <div><span class="num" id="sumKero">0</span><span class="lbl">Total Kerosene Sold (L)</span></div>
-        <div><span class="num" id="sumTankD">0</span><span class="lbl">Diesel Tank Closing (L)</span></div>
-        <div><span class="num" id="sumTankK">0</span><span class="lbl">Kerosene Tank Closing (L)</span></div>
+      <div class="pump diesel">
+        <div class="pump-title">Diesel Pump 1</div>
+        <label>Closing reading</label><input type="number" step="0.01" inputmode="decimal" id="d1close">
       </div>
+      <div class="pump diesel">
+        <div class="pump-title">Diesel Pump 2</div>
+        <label>Closing reading</label><input type="number" step="0.01" inputmode="decimal" id="d2close">
+      </div>
+      <div class="pump kero">
+        <div class="pump-title">Kerosene Pump 1</div>
+        <label>Closing reading</label><input type="number" step="0.01" inputmode="decimal" id="k1close">
+      </div>
+      <div class="pump kero">
+        <div class="pump-title">Kerosene Pump 2</div>
+        <label>Closing reading</label><input type="number" step="0.01" inputmode="decimal" id="k2close">
+      </div>
+      <div class="pump tankd">
+        <div class="pump-title">Diesel Tank</div>
+        <label>Closing balance</label><input type="number" step="0.01" inputmode="decimal" id="tdclose">
+      </div>
+      <div class="pump tankk">
+        <div class="pump-title">Kerosene Tank</div>
+        <label>Closing balance</label><input type="number" step="0.01" inputmode="decimal" id="tkclose">
+      </div>
+
+      <div id="closeMsg" class="msg"></div>
+      <button class="submit-btn" id="submitCloseBtn">Save Closing Readings</button>
     </div>
 
   </section>
@@ -292,6 +289,7 @@ const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwmyjHW3x7gT8z2mT_T-
 let session = null; // {username, role, fullName, password}
 let currentEntries = [];
 let editingId = null;
+let todayRow = null; // existing sheet row for the selected date, if any
 
 function fmt(n){ return (isNaN(n) ? 0 : n).toFixed(2); }
 function num(id){ return parseFloat(document.getElementById(id).value) || 0; }
@@ -352,6 +350,8 @@ function startApp(){
     document.getElementById('navAdmin').classList.remove('hidden');
   }
   document.getElementById('entryDate').value = todayStr();
+  document.getElementById('entryDate').disabled = true; // 1 entry per day, keep it on today
+  loadTodayStatus();
 }
 
 document.getElementById('logoutBtn').addEventListener('click', ()=>{
@@ -362,18 +362,45 @@ document.getElementById('logoutBtn').addEventListener('click', ()=>{
   document.getElementById('loginPass').value = '';
 });
 
-// ---------- live totals ----------
-function updateTotals(){
-  document.getElementById('d1total').textContent = fmt(num('d1close') - num('d1open')) + ' L sold';
-  document.getElementById('d2total').textContent = fmt(num('d2close') - num('d2open')) + ' L sold';
-  document.getElementById('k1total').textContent = fmt(num('k1close') - num('k1open')) + ' L sold';
-  document.getElementById('k2total').textContent = fmt(num('k2close') - num('k2open')) + ' L sold';
-  document.getElementById('tdtotal').textContent = fmt(num('tdopen') - num('tdclose')) + ' L used';
-  document.getElementById('tktotal').textContent = fmt(num('tkopen') - num('tkclose')) + ' L used';
+// ---------- opening/closing daily lock ----------
+const OPEN_FIELDS = ['d1open','d2open','k1open','k2open','tdopen','tkopen'];
+const CLOSE_FIELDS = ['d1close','d2close','k1close','k2close','tdclose','tkclose'];
+const SHEET_OPEN_KEYS = ['Diesel1_Open','Diesel2_Open','Kero1_Open','Kero2_Open','DieselTank_Open','KeroTank_Open'];
+const SHEET_CLOSE_KEYS = ['Diesel1_Close','Diesel2_Close','Kero1_Close','Kero2_Close','DieselTank_Close','KeroTank_Close'];
+
+function rowHasValues(row, keys){
+  if(!row) return false;
+  return keys.some(k => row[k] !== undefined && row[k] !== '' && row[k] !== null);
 }
-document.querySelectorAll('#entryView input[type=number]').forEach(el=>{
-  el.addEventListener('input', updateTotals);
-});
+
+async function loadTodayStatus(){
+  const date = document.getElementById('entryDate').value;
+  todayRow = null;
+  try{
+    const res = await fetch(SCRIPT_URL + '?action=list&username=' + encodeURIComponent(session.username) + '&password=' + encodeURIComponent(session.password));
+    const json = await res.json();
+    if(json.ok){
+      todayRow = (json.rows || []).find(r => r.Date === date) || null;
+    }
+  } catch(err){
+    // If this fails (e.g. connection issue), fall back to allowing entry.
+  }
+  updateEntryLockState();
+}
+
+function updateEntryLockState(){
+  const openingDone = rowHasValues(todayRow, SHEET_OPEN_KEYS);
+  const closingDone = rowHasValues(todayRow, SHEET_CLOSE_KEYS);
+
+  OPEN_FIELDS.forEach(id => document.getElementById(id).disabled = openingDone);
+  document.getElementById('submitOpenBtn').disabled = openingDone;
+  document.getElementById('openingLockNote').classList.toggle('hidden', !openingDone);
+
+  CLOSE_FIELDS.forEach(id => document.getElementById(id).disabled = closingDone || !openingDone);
+  document.getElementById('submitCloseBtn').disabled = closingDone || !openingDone;
+  document.getElementById('closingLockNote').classList.toggle('hidden', !closingDone);
+  document.getElementById('closingWaitNote').classList.toggle('hidden', openingDone || closingDone);
+}
 
 // ---------- navigation ----------
 document.getElementById('navEntry').addEventListener('click', ()=>{
@@ -381,6 +408,7 @@ document.getElementById('navEntry').addEventListener('click', ()=>{
   document.getElementById('navAdmin').classList.remove('active');
   document.getElementById('entryView').classList.remove('hidden');
   document.getElementById('adminView').classList.add('hidden');
+  loadTodayStatus();
 });
 document.getElementById('navAdmin').addEventListener('click', ()=>{
   document.getElementById('navAdmin').classList.add('active');
@@ -390,26 +418,29 @@ document.getElementById('navAdmin').addEventListener('click', ()=>{
   loadAdminList();
 });
 
-// ---------- submit new entry ----------
-document.getElementById('submitBtn').addEventListener('click', async ()=>{
-  const msg = document.getElementById('entryMsg');
-  msg.className = 'msg'; msg.textContent='';
+// ---------- submit opening readings (morning) ----------
+document.getElementById('submitOpenBtn').addEventListener('click', async ()=>{
+  const msg = document.getElementById('openMsg');
+  msg.className = 'msg'; msg.textContent = '';
 
   const date = document.getElementById('entryDate').value;
   if(!date){ msg.classList.add('show','bad'); msg.textContent = 'Please enter the date.'; return; }
+  if(rowHasValues(todayRow, SHEET_OPEN_KEYS)){
+    msg.classList.add('show','bad'); msg.textContent = 'Opening readings already saved today.'; return;
+  }
 
   const data = {
     date,
-    diesel1Open: num('d1open'), diesel1Close: num('d1close'), diesel1Total: num('d1close')-num('d1open'),
-    diesel2Open: num('d2open'), diesel2Close: num('d2close'), diesel2Total: num('d2close')-num('d2open'),
-    kero1Open: num('k1open'), kero1Close: num('k1close'), kero1Total: num('k1close')-num('k1open'),
-    kero2Open: num('k2open'), kero2Close: num('k2close'), kero2Total: num('k2close')-num('k2open'),
-    dieselTankOpen: num('tdopen'), dieselTankClose: num('tdclose'), dieselTankDiff: num('tdopen')-num('tdclose'),
-    keroTankOpen: num('tkopen'), keroTankClose: num('tkclose'), keroTankDiff: num('tkopen')-num('tkclose')
+    diesel1Open: num('d1open'), diesel1Close: 0, diesel1Total: 0,
+    diesel2Open: num('d2open'), diesel2Close: 0, diesel2Total: 0,
+    kero1Open: num('k1open'), kero1Close: 0, kero1Total: 0,
+    kero2Open: num('k2open'), kero2Close: 0, kero2Total: 0,
+    dieselTankOpen: num('tdopen'), dieselTankClose: 0, dieselTankDiff: 0,
+    keroTankOpen: num('tkopen'), keroTankClose: 0, keroTankDiff: 0
   };
 
-  document.getElementById('submitBtn').textContent = 'Saving...';
-  document.getElementById('submitBtn').disabled = true;
+  const btn = document.getElementById('submitOpenBtn');
+  btn.textContent = 'Saving...'; btn.disabled = true;
 
   try{
     const res = await fetch(SCRIPT_URL, {
@@ -420,21 +451,68 @@ document.getElementById('submitBtn').addEventListener('click', async ()=>{
     const json = await res.json();
     if(json.ok){
       msg.classList.add('show','good');
-      msg.textContent = "Today's readings saved successfully ✅";
-      document.getElementById('summaryCard').style.display = 'block';
-      document.getElementById('sumDiesel').textContent = fmt(data.diesel1Total + data.diesel2Total);
-      document.getElementById('sumKero').textContent = fmt(data.kero1Total + data.kero2Total);
-      document.getElementById('sumTankD').textContent = fmt(data.dieselTankClose);
-      document.getElementById('sumTankK').textContent = fmt(data.keroTankClose);
+      msg.textContent = 'Opening readings saved successfully ✅';
+      await loadTodayStatus();
     } else {
       throw new Error(json.error || 'Unknown error');
     }
   } catch(err){
     msg.classList.add('show','bad');
     msg.textContent = 'Could not save. Check your internet connection and try again. (' + err.message + ')';
+    btn.disabled = false;
   } finally {
-    document.getElementById('submitBtn').textContent = "Save Today's Readings";
-    document.getElementById('submitBtn').disabled = false;
+    btn.textContent = 'Save Opening Readings';
+  }
+});
+
+// ---------- submit closing readings (evening) ----------
+document.getElementById('submitCloseBtn').addEventListener('click', async ()=>{
+  const msg = document.getElementById('closeMsg');
+  msg.className = 'msg'; msg.textContent = '';
+
+  const date = document.getElementById('entryDate').value;
+  if(!date){ msg.classList.add('show','bad'); msg.textContent = 'Please enter the date.'; return; }
+  if(!rowHasValues(todayRow, SHEET_OPEN_KEYS)){
+    msg.classList.add('show','bad'); msg.textContent = 'Opening readings must be saved first.'; return;
+  }
+  if(rowHasValues(todayRow, SHEET_CLOSE_KEYS)){
+    msg.classList.add('show','bad'); msg.textContent = 'Closing readings already saved today.'; return;
+  }
+
+  const opnum = key => parseFloat(todayRow[key]) || 0;
+  const data = {
+    date,
+    diesel1Open: opnum('Diesel1_Open'), diesel1Close: num('d1close'), diesel1Total: num('d1close') - opnum('Diesel1_Open'),
+    diesel2Open: opnum('Diesel2_Open'), diesel2Close: num('d2close'), diesel2Total: num('d2close') - opnum('Diesel2_Open'),
+    kero1Open: opnum('Kero1_Open'), kero1Close: num('k1close'), kero1Total: num('k1close') - opnum('Kero1_Open'),
+    kero2Open: opnum('Kero2_Open'), kero2Close: num('k2close'), kero2Total: num('k2close') - opnum('Kero2_Open'),
+    dieselTankOpen: opnum('DieselTank_Open'), dieselTankClose: num('tdclose'), dieselTankDiff: opnum('DieselTank_Open') - num('tdclose'),
+    keroTankOpen: opnum('KeroTank_Open'), keroTankClose: num('tkclose'), keroTankDiff: opnum('KeroTank_Open') - num('tkclose')
+  };
+
+  const btn = document.getElementById('submitCloseBtn');
+  btn.textContent = 'Saving...'; btn.disabled = true;
+
+  try{
+    const res = await fetch(SCRIPT_URL, {
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify({ action:'update', id: todayRow.ID, username: session.username, password: session.password, data })
+    });
+    const json = await res.json();
+    if(json.ok){
+      msg.classList.add('show','good');
+      msg.textContent = 'Closing readings saved successfully ✅';
+      await loadTodayStatus();
+    } else {
+      throw new Error(json.error || 'Unknown error');
+    }
+  } catch(err){
+    msg.classList.add('show','bad');
+    msg.textContent = 'Could not save. Check your internet connection and try again. (' + err.message + ')';
+    btn.disabled = false;
+  } finally {
+    btn.textContent = 'Save Closing Readings';
   }
 });
 
