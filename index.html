@@ -3,744 +3,966 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Daily Fuel Register</title>
+<title>CounterBook POS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Work+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#F6F2E9;
-    --card:#FFFFFF;
-    --ink:#242322;
-    --ink-soft:#6b665f;
-    --diesel:#A85C24;
-    --diesel-bg:#FBEEE0;
-    --kero:#1F6E8C;
-    --kero-bg:#E7F2F6;
-    --tank:#2F5233;
-    --tank-bg:#EAF1E8;
-    --line:#E4DDD0;
-    --good:#2F7D45;
-    --bad:#B23A2E;
-    --radius:16px;
-    --shadow:0 2px 10px rgba(40,30,10,0.06);
+    --ink:#14213D;
+    --ink-light:#24345A;
+    --green:#2F6E4F;
+    --green-light:#3E8C66;
+    --paper:#F7F3E8;
+    --paper-dark:#ECE5D3;
+    --amber:#E4A73B;
+    --red:#C0453A;
+    --text:#241F16;
+    --text-dim:#6B6555;
+    --line:#D8D0BA;
+    --white:#FFFDF8;
   }
   *{box-sizing:border-box;}
-  body{
-    margin:0;
-    font-family:"Segoe UI", Verdana, Arial, sans-serif;
-    background:var(--bg);
-    color:var(--ink);
-    padding-bottom:60px;
-  }
-  header{
-    background:var(--ink);
-    color:#fff;
-    padding:22px 20px;
+  body{margin:0;padding:0;background:transparent;}
+  #app{
+    font-family:'Work Sans',sans-serif;
+    color:var(--text);
+    background:var(--paper);
+    min-height:100vh;
     display:flex;
-    align-items:center;
-    justify-content:space-between;
-    flex-wrap:wrap;
-    gap:10px;
+    flex-direction:column;
   }
-  header h1{ font-size:1.25rem; margin:0; letter-spacing:0.3px; }
-  header .tag{ font-size:0.8rem; color:#cfcac0; }
-  header .who{ font-size:0.85rem; color:#e8e4da; }
-  nav{ display:flex; gap:8px; }
-  nav button{
-    background:transparent; border:1px solid #55524b; color:#fff;
-    padding:8px 16px; border-radius:999px; font-size:0.9rem; cursor:pointer;
+  .mono{font-family:'Space Mono',monospace;}
+  button{font-family:inherit;cursor:pointer;}
+  input,select{font-family:inherit;}
+  ::selection{background:var(--amber);color:var(--ink);}
+
+  /* ---------- LOGIN ---------- */
+  .login-wrap{
+    flex:1;display:flex;align-items:center;justify-content:center;
+    background:
+      repeating-linear-gradient(135deg, rgba(20,33,61,0.03) 0 2px, transparent 2px 14px),
+      var(--paper);
+    padding:24px;
   }
-  nav button.active{ background:#fff; color:var(--ink); border-color:#fff; font-weight:600; }
-  main{ max-width:760px; margin:0 auto; padding:20px 16px 100px; }
-  .card{ background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); padding:20px; margin-bottom:18px; }
-  .card h2{ margin:0 0 4px; font-size:1.15rem; }
-  .card .sub{ color:var(--ink-soft); font-size:0.9rem; margin-bottom:16px; }
-  label{ display:block; font-size:0.85rem; color:var(--ink-soft); margin-bottom:4px; }
-  input, select{
-    width:100%; padding:14px; font-size:1.1rem; border-radius:10px;
-    border:1.5px solid var(--line); background:#fff; color:var(--ink);
+  .login-card{
+    background:var(--white);
+    border:1px solid var(--line);
+    border-radius:4px;
+    width:100%;max-width:380px;
+    padding:32px 28px 28px;
+    box-shadow:0 10px 30px rgba(20,33,61,0.08);
+    position:relative;
   }
-  input:focus, select:focus{ outline:none; border-color:var(--ink); }
-  .row{ display:flex; gap:12px; flex-wrap:wrap; }
-  .row > div{ flex:1 1 140px; }
-  .pump{ border-radius:14px; padding:16px; margin-bottom:14px; border:1.5px solid var(--line); }
-  .pump.diesel{ background:var(--diesel-bg); border-color:#EAD3B6; }
-  .pump.kero{ background:var(--kero-bg); border-color:#C9E1EA; }
-  .pump.tankd{ background:var(--tank-bg); border-color:#CFE1CC; }
-  .pump.tankk{ background:var(--kero-bg); border-color:#C9E1EA; }
-  .pump-title{ font-weight:700; margin-bottom:10px; display:flex; align-items:center; justify-content:space-between; }
-  .pump.diesel .pump-title{ color:var(--diesel); }
-  .pump.kero .pump-title{ color:var(--kero); }
-  .pump.tankd .pump-title{ color:var(--tank); }
-  .pump.tankk .pump-title{ color:var(--kero); }
-  .total-pill{ background:#fff; padding:6px 12px; border-radius:999px; font-size:0.9rem; font-weight:600; }
-  .submit-btn{
-    width:100%; padding:16px; font-size:1.15rem; font-weight:700; color:#fff;
-    background:var(--ink); border:none; border-radius:12px; cursor:pointer; margin-top:8px;
+  .login-card::before{
+    content:"";
+    position:absolute; top:-1px; left:20px; right:20px; height:8px;
+    background: radial-gradient(circle at 6px 0, transparent 5px, var(--paper) 5.5px) repeat-x;
+    background-size:16px 8px;
   }
-  .submit-btn:active{ transform: scale(0.99); }
-  .msg{ padding:14px 16px; border-radius:12px; margin-bottom:16px; font-weight:600; display:none; }
-  .msg.show{ display:block; }
-  .msg.good{ background:#E4F3E7; color:var(--good); }
-  .msg.bad{ background:#FBE7E4; color:var(--bad); }
-  .summary-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px; }
-  .summary-grid div{ background:#F6F2E9; border-radius:10px; padding:12px; text-align:center; }
-  .summary-grid .num{ font-size:1.3rem; font-weight:700; display:block; }
-  .summary-grid .lbl{ font-size:0.8rem; color:var(--ink-soft); }
-  table{ width:100%; border-collapse:collapse; font-size:0.85rem; }
-  th, td{ padding:10px 8px; border-bottom:1px solid var(--line); text-align:left; white-space:nowrap; }
-  th{ color:var(--ink-soft); font-weight:600; }
-  .edit-link{ color:var(--kero); cursor:pointer; font-weight:600; text-decoration:underline; }
-  .table-wrap{ overflow-x:auto; }
-  .hidden{ display:none !important; }
-  .setup-warning{
-    background:#FFF4E5; border:1.5px solid #F0C98A; color:#7A5300;
-    padding:14px 16px; border-radius:12px; margin-bottom:16px; font-size:0.9rem;
+  .brand{display:flex;align-items:baseline;gap:8px;margin-bottom:4px;}
+  .brand .mark{font-family:'Space Mono',monospace;font-weight:700;font-size:22px;color:var(--green);}
+  .brand .name{font-weight:800;font-size:20px;letter-spacing:-0.02em;color:var(--ink);}
+  .tagline{color:var(--text-dim);font-size:13px;margin-bottom:24px;}
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:12px;font-weight:600;color:var(--text-dim);margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em;}
+  .field input,.field select{
+    width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:3px;
+    font-size:14.5px;background:var(--white);color:var(--text);
   }
-  .small-btn{ padding:8px 14px; border-radius:8px; border:1.5px solid var(--line); background:#fff; cursor:pointer; font-size:0.9rem; }
-  .view-toggle{ display:flex; gap:8px; margin-bottom:16px; }
-  .view-toggle button{ padding:8px 16px; border-radius:999px; border:1.5px solid var(--line); background:#fff; color:var(--ink); cursor:pointer; font-size:0.85rem; font-weight:600; }
-  .view-toggle button.active{ background:var(--ink); color:#fff; border-color:var(--ink); }
-  .chart-wrap{ position:relative; height:320px; }
-  .login-wrap{ max-width:400px; margin:60px auto; padding:0 16px; }
-  .login-logo{ text-align:center; font-size:2.4rem; margin-bottom:6px; }
-  .login-title{ text-align:center; font-size:1.3rem; font-weight:700; margin-bottom:4px; }
-  .login-sub{ text-align:center; color:var(--ink-soft); margin-bottom:22px; font-size:0.95rem; }
-  .logout-link{ color:#e8e4da; text-decoration:underline; cursor:pointer; font-size:0.85rem; }
+  .field input:focus,.field select:focus{outline:none;border-color:var(--green);}
+  .btn{
+    border:none;border-radius:3px;padding:11px 18px;font-weight:700;font-size:14px;
+    letter-spacing:.02em;transition:transform .08s ease, filter .15s ease;
+  }
+  .btn:active{transform:translateY(1px);}
+  .btn-primary{background:var(--green);color:var(--white);}
+  .btn-primary:hover{filter:brightness(1.08);}
+  .btn-block{width:100%;}
+  .btn-amber{background:var(--amber);color:var(--ink);}
+  .btn-ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line);}
+  .btn-danger{background:var(--red);color:var(--white);}
+  .btn-sm{padding:6px 10px;font-size:12.5px;border-radius:3px;}
+  .error-msg{color:var(--red);font-size:13px;margin:-4px 0 12px;}
+  .demo-hint{margin-top:18px;padding:10px 12px;background:var(--paper);border-radius:3px;font-size:11.5px;color:var(--text-dim);border:1px dashed var(--line);}
+  .demo-hint b{color:var(--text);}
+
+  /* ---------- SHELL ---------- */
+  .topbar{
+    background:var(--ink);color:var(--white);
+    display:flex;align-items:center;justify-content:space-between;
+    padding:12px 20px;position:sticky;top:0;z-index:20;
+  }
+  .topbar .brand2{display:flex;align-items:center;gap:8px;font-weight:800;font-size:16px;}
+  .topbar .brand2 .mark{font-family:'Space Mono',monospace;color:var(--amber);}
+  .who{display:flex;align-items:center;gap:10px;font-size:13px;}
+  .who .role-badge{
+    background:var(--green);color:var(--white);font-size:10px;font-weight:700;
+    padding:2px 7px;border-radius:10px;text-transform:uppercase;letter-spacing:.03em;
+  }
+  .logout-btn{background:transparent;border:1px solid rgba(255,255,255,.3);color:var(--white);
+    padding:6px 12px;border-radius:3px;font-size:12.5px;}
+  .logout-btn:hover{background:rgba(255,255,255,.1);}
+
+  .layout{display:flex;flex:1;min-height:0;}
+  .sidebar{
+    width:190px;flex-shrink:0;background:var(--ink-light);color:var(--white);
+    padding:16px 10px;display:flex;flex-direction:column;gap:2px;
+  }
+  .nav-item{
+    display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:4px;
+    color:rgba(255,255,255,.75);font-size:14px;font-weight:600;background:transparent;border:none;
+    text-align:left;width:100%;
+  }
+  .nav-item svg{width:16px;height:16px;flex-shrink:0;}
+  .nav-item:hover{background:rgba(255,255,255,.06);color:var(--white);}
+  .nav-item.active{background:var(--green);color:var(--white);}
+  .nav-divider{height:1px;background:rgba(255,255,255,.12);margin:10px 4px;}
+  .nav-label{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.4);padding:8px 12px 2px;}
+
+  .content{flex:1;min-width:0;padding:22px;overflow-y:auto;}
+  .page-title{font-size:22px;font-weight:800;color:var(--ink);letter-spacing:-0.01em;margin:0 0 4px;}
+  .page-sub{color:var(--text-dim);font-size:13.5px;margin:0 0 20px;}
+
+  .card{background:var(--white);border:1px solid var(--line);border-radius:5px;padding:16px;}
+  .grid2{display:grid;grid-template-columns:1.5fr 1fr;gap:18px;align-items:start;}
+
+  /* ---------- BILLING: items ---------- */
+  .search-row{display:flex;gap:8px;margin-bottom:14px;}
+  .search-row input{flex:1;padding:10px 12px;border:1.5px solid var(--line);border-radius:3px;font-size:14px;}
+  .item-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;}
+  .item-tile{
+    border:1.5px solid var(--line);border-radius:5px;padding:12px 12px 10px;background:var(--white);
+    text-align:left;position:relative;overflow:hidden;
+  }
+  .item-tile:disabled{opacity:.45;cursor:not-allowed;}
+  .item-tile:not(:disabled):hover{border-color:var(--green);box-shadow:0 2px 8px rgba(47,110,79,.12);}
+  .item-tile .nm{font-weight:700;font-size:13.5px;color:var(--ink);margin-bottom:6px;display:block;}
+  .item-tile .pr{font-family:'Space Mono',monospace;font-weight:700;color:var(--green);font-size:14.5px;}
+  .item-tile .st{font-size:11px;color:var(--text-dim);margin-top:4px;}
+  .item-tile .st.low{color:var(--red);font-weight:700;}
+  .cat-tag{position:absolute;top:8px;right:8px;font-size:9px;background:var(--paper-dark);color:var(--text-dim);
+    padding:2px 6px;border-radius:8px;text-transform:uppercase;letter-spacing:.03em;}
+
+  /* ---------- CART ---------- */
+  .cart-box{position:sticky;top:8px;}
+  .cart-title{font-weight:800;font-size:15px;color:var(--ink);margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;}
+  .cart-empty{color:var(--text-dim);font-size:13px;text-align:center;padding:26px 10px;border:1.5px dashed var(--line);border-radius:4px;}
+  .cart-line{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line);}
+  .cart-line .nm{flex:1;font-size:13px;font-weight:600;}
+  .qty-ctrl{display:flex;align-items:center;gap:6px;}
+  .qty-ctrl button{width:22px;height:22px;border:1px solid var(--line);background:var(--paper);border-radius:3px;font-weight:700;font-size:13px;line-height:1;}
+  .qty-ctrl span{width:20px;text-align:center;font-family:'Space Mono',monospace;font-size:13px;}
+  .line-total{width:64px;text-align:right;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;}
+  .rm-btn{color:var(--red);background:none;border:none;font-size:15px;padding:0 2px;}
+
+  .sum-row{display:flex;justify-content:space-between;font-size:13.5px;padding:4px 0;color:var(--text-dim);}
+  .sum-row.total{font-size:17px;font-weight:800;color:var(--ink);border-top:1.5px dashed var(--line);margin-top:6px;padding-top:10px;}
+  .sum-row .val{font-family:'Space Mono',monospace;font-weight:700;color:var(--text);}
+  .sum-row.total .val{color:var(--green);}
+
+  .discount-row{display:flex;gap:6px;align-items:center;margin:10px 0;}
+  .discount-row select{padding:8px;border:1.5px solid var(--line);border-radius:3px;font-size:12.5px;}
+  .discount-row input{width:80px;padding:8px;border:1.5px solid var(--line);border-radius:3px;font-size:13px;}
+
+  .pay-tabs{display:flex;gap:6px;margin:12px 0 8px;}
+  .pay-tab{flex:1;padding:8px 4px;border:1.5px solid var(--line);border-radius:3px;background:var(--white);
+    font-size:12px;font-weight:700;color:var(--text-dim);}
+  .pay-tab.active{background:var(--ink);color:var(--white);border-color:var(--ink);}
+
+  /* ---------- TABLES ---------- */
+  table{width:100%;border-collapse:collapse;font-size:13.5px;}
+  th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-dim);
+    padding:8px 10px;border-bottom:2px solid var(--line);}
+  td{padding:9px 10px;border-bottom:1px solid var(--line);}
+  tr:last-child td{border-bottom:none;}
+  .num{font-family:'Space Mono',monospace;}
+  .pill{font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:9px;text-transform:uppercase;}
+  .pill.cash{background:#DFF0E6;color:var(--green);}
+  .pill.cheque{background:#FDF0DA;color:#8A5E12;}
+  .pill.account{background:#FBE3E1;color:var(--red);}
+
+  /* ---------- STAT CARDS ---------- */
+  .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px;}
+  .stat-card{background:var(--white);border:1px solid var(--line);border-radius:5px;padding:14px 16px;}
+  .stat-card .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-dim);font-weight:700;}
+  .stat-card .val{font-family:'Space Mono',monospace;font-size:23px;font-weight:700;color:var(--ink);margin-top:4px;}
+  .stat-card.accent .val{color:var(--green);}
+  .bars{display:flex;align-items:flex-end;gap:8px;height:120px;margin-top:6px;}
+  .bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;}
+  .bar-col .bar{width:100%;background:var(--green-light);border-radius:3px 3px 0 0;min-height:2px;}
+  .bar-col .lbl{font-size:10px;color:var(--text-dim);}
+
+  /* ---------- FORMS / ADMIN ---------- */
+  .form-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;}
+  .form-row .field{flex:1;min-width:120px;margin-bottom:0;}
+  .list-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);}
+  .list-row:last-child{border-bottom:none;}
+  .list-row .main{flex:1;}
+  .list-row .main .t1{font-weight:700;font-size:13.5px;}
+  .list-row .main .t2{font-size:12px;color:var(--text-dim);}
+  .badge-role{font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;text-transform:uppercase;}
+  .badge-role.admin{background:var(--ink);color:var(--white);}
+  .badge-role.cashier{background:var(--paper-dark);color:var(--text-dim);}
+
+  .section-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+  .section-head h3{margin:0;font-size:15px;color:var(--ink);}
+
+  /* ---------- MODAL / RECEIPT ---------- */
+  .modal-bg{position:fixed;inset:0;background:rgba(20,33,61,.55);display:flex;align-items:center;justify-content:center;z-index:100;padding:20px;}
+  .modal-box{background:var(--white);border-radius:6px;max-width:420px;width:100%;max-height:90vh;overflow-y:auto;padding:20px;}
+  .receipt-wrap{background:var(--white);border:1.5px dashed var(--line);padding:14px 16px 22px;font-family:'Space Mono',monospace;font-size:12px;color:#111;
+    clip-path: polygon(0 0,100% 0,100% 96%,97% 100%,94% 96%,91% 100%,88% 96%,85% 100%,82% 96%,79% 100%,76% 96%,73% 100%,70% 96%,67% 100%,64% 96%,61% 100%,58% 96%,55% 100%,52% 96%,49% 100%,46% 96%,43% 100%,40% 96%,37% 100%,34% 96%,31% 100%,28% 96%,25% 100%,22% 96%,19% 100%,16% 96%,13% 100%,10% 96%,7% 100%,4% 96%,0 100%);
+  }
+  .receipt-wrap.w58{max-width:220px;margin:0 auto;font-size:10.5px;}
+  .receipt-wrap.w80{max-width:300px;margin:0 auto;}
+  .r-center{text-align:center;}
+  .r-line{display:flex;justify-content:space-between;}
+  .r-hr{border-top:1px dashed #999;margin:8px 0;}
+  .r-shopname{font-weight:700;font-size:15px;}
+  .r-item-row{display:flex;justify-content:space-between;margin-bottom:2px;}
+  .r-item-name{flex:1;}
+  .modal-actions{display:flex;gap:8px;margin-top:16px;}
+  .close-x{position:absolute;top:10px;right:14px;background:none;border:none;font-size:20px;color:var(--text-dim);}
+
+  /* ---------- BOTTOM TAB (mobile) ---------- */
+  .bottom-tabs{display:none;}
+  .empty-note{color:var(--text-dim);font-size:13px;padding:20px;text-align:center;}
+  .note-box{background:#FDF0DA;border:1px solid #E9CC93;color:#8A5E12;font-size:12px;padding:10px 12px;border-radius:4px;margin-bottom:16px;}
+
+  @media print{
+    body *{visibility:hidden;}
+    #print-area, #print-area *{visibility:visible;}
+    #print-area{position:absolute;top:0;left:0;width:100%;}
+  }
+
+  @media (max-width:820px){
+    .grid2{grid-template-columns:1fr;}
+    .sidebar{display:none;}
+    .content{padding:14px 14px 80px;}
+    .layout{flex-direction:column;}
+    .bottom-tabs{
+      display:flex;position:fixed;bottom:0;left:0;right:0;background:var(--ink);z-index:30;
+      border-top:1px solid rgba(255,255,255,.1);
+    }
+    .bottom-tabs button{
+      flex:1;background:none;border:none;color:rgba(255,255,255,.6);padding:10px 4px 8px;
+      display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;font-weight:700;
+    }
+    .bottom-tabs button.active{color:var(--amber);}
+    .bottom-tabs svg{width:18px;height:18px;}
+    .stat-grid{grid-template-columns:repeat(2,1fr);}
+  }
 </style>
 </head>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
 <body>
-
-<div id="loginScreen" class="login-wrap">
-  <div class="login-logo">⛽</div>
-  <div class="login-title">Daily Fuel Register</div>
-  <div class="login-sub">Log in to enter today's readings</div>
-  <div class="card">
-    <div id="setupWarning" class="setup-warning hidden">
-      ⚠️ This page isn't connected to Google Sheets yet. Open <code>index.html</code> and set
-      <code>"https://script.google.com/macros/s/AKfycbwmyjHW3x7gT8z2mT_T-uA9jQnR32Qnmm_7Tt-CFk-FOFgzIKG4F8snzTouUA4wXkpJoA/exec";</code> to your Apps Script Web App URL. See SETUP_INSTRUCTIONS.md.
-    </div>
-    <label>Username</label>
-    <input type="text" id="loginUser" autocomplete="username">
-    <div style="margin-top:12px;">
-      <label>Password</label>
-      <input type="password" id="loginPass" autocomplete="current-password">
-    </div>
-    <button class="submit-btn" id="loginBtn" style="margin-top:16px;">Log In</button>
-    <div id="loginMsg" class="msg"></div>
-  </div>
-</div>
-
-<div id="appScreen" class="hidden">
-
-<header>
-  <div>
-    <h1>⛽ Daily Fuel Register</h1>
-    <div class="who" id="whoLabel"></div>
-  </div>
-  <nav>
-    <button id="navEntry" class="active">New Entry</button>
-    <button id="navAdmin" class="hidden">Admin</button>
-    <span class="logout-link" id="logoutBtn">Log out</span>
-  </nav>
-</header>
-
-<main>
-
-  <!-- ============ ENTRY VIEW ============ -->
-  <section id="entryView">
-
-    <div class="card">
-      <h2>Today's Date</h2>
-      <input type="date" id="entryDate">
-    </div>
-
-    <div class="card" id="openingCard">
-      <h2>Opening Readings <span style="font-weight:400; color:var(--ink-soft); font-size:0.85rem;">(8:00 AM – 12:00 PM)</span></h2>
-      <div class="sub" id="openingSub">Enter once every morning, between 8:00 AM and 12:00 PM. Can only be saved 1 time per day.</div>
-      <div id="openingLockNote" class="setup-warning hidden">✅ Opening readings already saved for this date.</div>
-      <div id="openingTimeNote" class="setup-warning hidden">⏰ Opening readings can only be entered between 8:00 AM and 12:00 PM.</div>
-
-      <div class="pump diesel">
-        <div class="pump-title">Diesel Pump 1</div>
-        <label>Opening reading</label><input type="number" step="0.01" inputmode="decimal" id="d1open">
-      </div>
-      <div class="pump diesel">
-        <div class="pump-title">Diesel Pump 2</div>
-        <label>Opening reading</label><input type="number" step="0.01" inputmode="decimal" id="d2open">
-      </div>
-      <div class="pump kero">
-        <div class="pump-title">Kerosene Pump 1</div>
-        <label>Opening reading</label><input type="number" step="0.01" inputmode="decimal" id="k1open">
-      </div>
-      <div class="pump kero">
-        <div class="pump-title">Kerosene Pump 2</div>
-        <label>Opening reading</label><input type="number" step="0.01" inputmode="decimal" id="k2open">
-      </div>
-      <div class="pump tankd">
-        <div class="pump-title">Diesel Tank</div>
-        <label>Opening balance</label><input type="number" step="0.01" inputmode="decimal" id="tdopen">
-      </div>
-      <div class="pump tankk">
-        <div class="pump-title">Kerosene Tank</div>
-        <label>Opening balance</label><input type="number" step="0.01" inputmode="decimal" id="tkopen">
-      </div>
-
-      <div id="openMsg" class="msg"></div>
-      <button class="submit-btn" id="submitOpenBtn">Save Opening Readings</button>
-    </div>
-
-    <div class="card" id="closingCard">
-      <h2>Closing Readings <span style="font-weight:400; color:var(--ink-soft); font-size:0.85rem;">(12:01 PM – 5:00 PM)</span></h2>
-      <div class="sub" id="closingSub">Enter once between 12:01 PM and 5:00 PM, after opening readings are saved. Can only be saved 1 time per day.</div>
-      <div id="closingLockNote" class="setup-warning hidden">✅ Closing readings already saved for this date.</div>
-      <div id="closingWaitNote" class="setup-warning hidden">⏳ Opening readings must be saved first (by any staff) before closing can be entered.</div>
-      <div id="closingTimeNote" class="setup-warning hidden">⏰ Closing readings can only be entered between 12:01 PM and 5:00 PM.</div>
-
-      <div class="pump diesel">
-        <div class="pump-title">Diesel Pump 1</div>
-        <label>Closing reading</label><input type="number" step="0.01" inputmode="decimal" id="d1close">
-      </div>
-      <div class="pump diesel">
-        <div class="pump-title">Diesel Pump 2</div>
-        <label>Closing reading</label><input type="number" step="0.01" inputmode="decimal" id="d2close">
-      </div>
-      <div class="pump kero">
-        <div class="pump-title">Kerosene Pump 1</div>
-        <label>Closing reading</label><input type="number" step="0.01" inputmode="decimal" id="k1close">
-      </div>
-      <div class="pump kero">
-        <div class="pump-title">Kerosene Pump 2</div>
-        <label>Closing reading</label><input type="number" step="0.01" inputmode="decimal" id="k2close">
-      </div>
-      <div class="pump tankd">
-        <div class="pump-title">Diesel Tank</div>
-        <label>Closing balance</label><input type="number" step="0.01" inputmode="decimal" id="tdclose">
-      </div>
-      <div class="pump tankk">
-        <div class="pump-title">Kerosene Tank</div>
-        <label>Closing balance</label><input type="number" step="0.01" inputmode="decimal" id="tkclose">
-      </div>
-
-      <div id="closeMsg" class="msg"></div>
-      <button class="submit-btn" id="submitCloseBtn">Save Closing Readings</button>
-    </div>
-
-  </section>
-
-  <!-- ============ ADMIN VIEW (admin only) ============ -->
-  <section id="adminView" class="hidden">
-
-    <div class="card">
-      <h2>Past Entries</h2>
-      <div class="sub">All laborer entries, newest date first. Switch between table and chart, or tap "Edit" to correct any entry.</div>
-
-      <div class="view-toggle">
-        <button id="viewTableBtn" class="active">📋 Table View</button>
-        <button id="viewChartBtn">📊 Chart View</button>
-      </div>
-
-      <div class="table-wrap" id="adminTableWrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Date</th><th>Entered by</th>
-              <th>Diesel1 Open</th><th>Diesel1 Close</th>
-              <th>Diesel2 Open</th><th>Diesel2 Close</th>
-              <th>Kero1 Open</th><th>Kero1 Close</th>
-              <th>Kero2 Open</th><th>Kero2 Close</th>
-              <th>Diesel Tank Open</th><th>Diesel Tank Close</th>
-              <th>Kero Tank Open</th><th>Kero Tank Close</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="adminTableBody"></tbody>
-        </table>
-      </div>
-
-      <div class="chart-wrap hidden" id="adminChartWrap">
-        <canvas id="adminChart"></canvas>
-      </div>
-
-      <button class="small-btn" id="refreshBtn" style="margin-top:12px;">Refresh List</button>
-    </div>
-
-    <div class="card hidden" id="adminEditCard">
-      <h2>Edit Entry</h2>
-      <div class="sub" id="editingLabel"></div>
-      <div class="row">
-        <div><label>Date</label><input type="date" id="eDate"></div>
-        <div><label>Staff</label><input type="text" id="eStaff"></div>
-      </div>
-
-      <div class="pump diesel" style="margin-top:14px;">
-        <div class="pump-title">Diesel Pump 1</div>
-        <div class="row"><div><label>Opening</label><input type="number" step="0.01" id="eD1open"></div><div><label>Closing</label><input type="number" step="0.01" id="eD1close"></div></div>
-      </div>
-      <div class="pump diesel">
-        <div class="pump-title">Diesel Pump 2</div>
-        <div class="row"><div><label>Opening</label><input type="number" step="0.01" id="eD2open"></div><div><label>Closing</label><input type="number" step="0.01" id="eD2close"></div></div>
-      </div>
-      <div class="pump kero">
-        <div class="pump-title">Kerosene Pump 1</div>
-        <div class="row"><div><label>Opening</label><input type="number" step="0.01" id="eK1open"></div><div><label>Closing</label><input type="number" step="0.01" id="eK1close"></div></div>
-      </div>
-      <div class="pump kero">
-        <div class="pump-title">Kerosene Pump 2</div>
-        <div class="row"><div><label>Opening</label><input type="number" step="0.01" id="eK2open"></div><div><label>Closing</label><input type="number" step="0.01" id="eK2close"></div></div>
-      </div>
-      <div class="pump tankd">
-        <div class="pump-title">Diesel Tank</div>
-        <div class="row"><div><label>Opening</label><input type="number" step="0.01" id="eTDopen"></div><div><label>Closing</label><input type="number" step="0.01" id="eTDclose"></div></div>
-      </div>
-      <div class="pump tankk">
-        <div class="pump-title">Kerosene Tank</div>
-        <div class="row"><div><label>Opening</label><input type="number" step="0.01" id="eTKopen"></div><div><label>Closing</label><input type="number" step="0.01" id="eTKclose"></div></div>
-      </div>
-
-      <button class="submit-btn" id="saveEditBtn">Save Changes</button>
-      <button class="small-btn" id="cancelEditBtn" style="margin-top:10px;">Cancel</button>
-      <div id="editMsg" class="msg"></div>
-    </div>
-
-  </section>
-
-</main>
-</div>
+<div id="app"></div>
 
 <script>
-// =========================================================
-// CONFIG - paste your Google Apps Script Web App URL below
-// =========================================================
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwmyjHW3x7gT8z2mT_T-uA9jQnR32Qnmm_7Tt-CFk-FOFgzIKG4F8snzTouUA4wXkpJoA/exec";
+(function(){
+  "use strict";
 
-let session = null; // {username, role, fullName, password}
-let currentEntries = [];
-let editingId = null;
-let todayRow = null; // existing sheet row for the selected date, if any
-
-function fmt(n){ return (isNaN(n) ? 0 : n).toFixed(2); }
-function num(id){ return parseFloat(document.getElementById(id).value) || 0; }
-function todayStr(){
-  const d = new Date();
-  const off = d.getTimezoneOffset();
-  const local = new Date(d.getTime() - off*60000);
-  return local.toISOString().split('T')[0];
-}
-function checkConfigured(){
-  if(SCRIPT_URL.indexOf('PASTE_YOUR') === 0){
-    document.getElementById('setupWarning').classList.remove('hidden');
-    return false;
-  }
-  return true;
-}
-
-// ---------- login ----------
-document.getElementById('loginBtn').addEventListener('click', async ()=>{
-  const msg = document.getElementById('loginMsg');
-  msg.className='msg'; msg.textContent='';
-  const username = document.getElementById('loginUser').value.trim();
-  const password = document.getElementById('loginPass').value;
-
-  if(!username || !password){
-    msg.classList.add('show','bad'); msg.textContent='Enter your username and password.'; return;
-  }
-  if(!checkConfigured()){
-    msg.classList.add('show','bad'); msg.textContent='This page is not connected to Google Sheets yet.'; return;
-  }
-
-  document.getElementById('loginBtn').textContent = 'Logging in...';
-  try{
-    const res = await fetch(SCRIPT_URL, {
-      method:'POST',
-      headers:{'Content-Type':'text/plain;charset=utf-8'},
-      body: JSON.stringify({ action:'login', username, password })
-    });
-    const json = await res.json();
-    if(json.ok){
-      session = { username: json.user.username, role: json.user.role, fullName: json.user.fullName, password };
-      startApp();
-    } else {
-      msg.classList.add('show','bad'); msg.textContent = json.error || 'Login failed';
-    }
-  } catch(err){
-    msg.classList.add('show','bad'); msg.textContent = 'Could not connect. (' + err.message + ')';
-  } finally {
-    document.getElementById('loginBtn').textContent = 'Log In';
-  }
-});
-
-function startApp(){
-  document.getElementById('loginScreen').classList.add('hidden');
-  document.getElementById('appScreen').classList.remove('hidden');
-  document.getElementById('whoLabel').textContent = session.fullName + ' (' + session.role + ')';
-  if(session.role === 'admin'){
-    document.getElementById('navAdmin').classList.remove('hidden');
-  }
-  document.getElementById('entryDate').value = todayStr();
-  document.getElementById('entryDate').disabled = true; // 1 entry per day, keep it on today
-
-  if(session.role === 'admin'){
-    document.getElementById('openingSub').textContent = 'As an admin, you can enter opening readings at any time.';
-    document.getElementById('closingSub').textContent = 'As an admin, you can enter closing readings at any time.';
-  }
-
-  loadTodayStatus();
-}
-
-document.getElementById('logoutBtn').addEventListener('click', ()=>{
-  session = null;
-  document.getElementById('appScreen').classList.add('hidden');
-  document.getElementById('loginScreen').classList.remove('hidden');
-  document.getElementById('loginUser').value = '';
-  document.getElementById('loginPass').value = '';
-});
-
-// ---------- opening/closing daily lock ----------
-const OPEN_FIELDS = ['d1open','d2open','k1open','k2open','tdopen','tkopen'];
-const CLOSE_FIELDS = ['d1close','d2close','k1close','k2close','tdclose','tkclose'];
-const SHEET_OPEN_KEYS = ['Diesel1_Open','Diesel2_Open','Kero1_Open','Kero2_Open','DieselTank_Open','KeroTank_Open'];
-const SHEET_CLOSE_KEYS = ['Diesel1_Close','Diesel2_Close','Kero1_Close','Kero2_Close','DieselTank_Close','KeroTank_Close'];
-
-function rowHasValues(row, keys){
-  if(!row) return false;
-  return keys.some(k => row[k] !== undefined && row[k] !== '' && row[k] !== null);
-}
-
-// Opening readings: only allowed 8:00am - 10:00am. Closing readings: only allowed 3:00pm - 5:00pm.
-function withinWindow(startH, startM, endH, endM){
-  const now = new Date();
-  const mins = now.getHours()*60 + now.getMinutes();
-  return mins >= (startH*60+startM) && mins <= (endH*60+endM);
-}
-// Admins can enter data at any time; laborers are restricted to the fixed windows.
-function isOpeningWindow(){ return (session && session.role === 'admin') || withinWindow(8,0,12,0); }
-function isClosingWindow(){ return (session && session.role === 'admin') || withinWindow(12,1,17,0); }
-
-async function loadTodayStatus(){
-  const date = document.getElementById('entryDate').value;
-  todayRow = null;
-  try{
-    const res = await fetch(SCRIPT_URL + '?action=list&username=' + encodeURIComponent(session.username) + '&password=' + encodeURIComponent(session.password));
-    const json = await res.json();
-    if(json.ok){
-      todayRow = (json.rows || []).find(r => r.Date === date) || null;
-    }
-  } catch(err){
-    // If this fails (e.g. connection issue), fall back to allowing entry.
-  }
-  updateEntryLockState();
-}
-
-function updateEntryLockState(){
-  const openingDone = rowHasValues(todayRow, SHEET_OPEN_KEYS);
-  const closingDone = rowHasValues(todayRow, SHEET_CLOSE_KEYS);
-  const openWindowOk = isOpeningWindow();
-  const closeWindowOk = isClosingWindow();
-
-  OPEN_FIELDS.forEach(id => document.getElementById(id).disabled = openingDone || !openWindowOk);
-  document.getElementById('submitOpenBtn').disabled = openingDone || !openWindowOk;
-  document.getElementById('openingLockNote').classList.toggle('hidden', !openingDone);
-  document.getElementById('openingTimeNote').classList.toggle('hidden', openingDone || openWindowOk);
-
-  CLOSE_FIELDS.forEach(id => document.getElementById(id).disabled = closingDone || !openingDone || !closeWindowOk);
-  document.getElementById('submitCloseBtn').disabled = closingDone || !openingDone || !closeWindowOk;
-  document.getElementById('closingLockNote').classList.toggle('hidden', !closingDone);
-  document.getElementById('closingWaitNote').classList.toggle('hidden', openingDone || closingDone);
-  document.getElementById('closingTimeNote').classList.toggle('hidden', !openingDone || closingDone || closeWindowOk);
-}
-
-// ---------- navigation ----------
-document.getElementById('navEntry').addEventListener('click', ()=>{
-  document.getElementById('navEntry').classList.add('active');
-  document.getElementById('navAdmin').classList.remove('active');
-  document.getElementById('entryView').classList.remove('hidden');
-  document.getElementById('adminView').classList.add('hidden');
-  loadTodayStatus();
-});
-document.getElementById('navAdmin').addEventListener('click', ()=>{
-  document.getElementById('navAdmin').classList.add('active');
-  document.getElementById('navEntry').classList.remove('active');
-  document.getElementById('adminView').classList.remove('hidden');
-  document.getElementById('entryView').classList.add('hidden');
-  loadAdminList();
-});
-
-// ---------- submit opening readings (morning) ----------
-document.getElementById('submitOpenBtn').addEventListener('click', async ()=>{
-  const msg = document.getElementById('openMsg');
-  msg.className = 'msg'; msg.textContent = '';
-
-  const date = document.getElementById('entryDate').value;
-  if(!date){ msg.classList.add('show','bad'); msg.textContent = 'Please enter the date.'; return; }
-  if(rowHasValues(todayRow, SHEET_OPEN_KEYS)){
-    msg.classList.add('show','bad'); msg.textContent = 'Opening readings already saved today.'; return;
-  }
-  if(!isOpeningWindow()){
-    msg.classList.add('show','bad'); msg.textContent = 'Opening readings can only be entered between 8:00 AM and 12:00 PM.'; return;
-  }
-
-  const data = {
-    date,
-    diesel1Open: num('d1open'), diesel1Close: 0, diesel1Total: 0,
-    diesel2Open: num('d2open'), diesel2Close: 0, diesel2Total: 0,
-    kero1Open: num('k1open'), kero1Close: 0, kero1Total: 0,
-    kero2Open: num('k2open'), kero2Close: 0, kero2Total: 0,
-    dieselTankOpen: num('tdopen'), dieselTankClose: 0, dieselTankDiff: 0,
-    keroTankOpen: num('tkopen'), keroTankClose: 0, keroTankDiff: 0
+  var ICONS = {
+    cart:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>',
+    box:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8L12 3 3 8l9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>',
+    chart:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>',
+    users:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+    gear:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
+    store:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l1-6h16l1 6"/><path d="M4 9v11h16V9"/><path d="M9 20v-6h6v6"/></svg>'
   };
 
-  const btn = document.getElementById('submitOpenBtn');
-  btn.textContent = 'Saving...'; btn.disabled = true;
+  var STORE_KEY_ITEMS='pos:items', STORE_KEY_USERS='pos:users', STORE_KEY_BILLS='pos:bills', STORE_KEY_SHOP='pos:shop';
 
-  try{
-    const res = await fetch(SCRIPT_URL, {
-      method:'POST',
-      headers:{'Content-Type':'text/plain;charset=utf-8'},
-      body: JSON.stringify({ action:'add', username: session.username, password: session.password, data })
-    });
-    const json = await res.json();
-    if(json.ok){
-      msg.classList.add('show','good');
-      msg.textContent = 'Opening readings saved successfully ✅';
-      await loadTodayStatus();
-    } else {
-      throw new Error(json.error || 'Unknown error');
-    }
-  } catch(err){
-    msg.classList.add('show','bad');
-    msg.textContent = 'Could not save. Check your internet connection and try again. (' + err.message + ')';
-    btn.disabled = false;
-  } finally {
-    btn.textContent = 'Save Opening Readings';
-  }
-});
+  // ======= CONFIG =======
+  // Paste your deployed Google Apps Script Web App URL below (see AppsScript-Code.gs
+  // for the script + deployment steps). Until this is set, the app runs on
+  // temporary local demo data only and nothing is saved to your Sheet.
+  var CONFIG = {
+    SHEET_API_URL: 'PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE'
+  };
+  function sheetConfigured(){ return CONFIG.SHEET_API_URL && CONFIG.SHEET_API_URL.indexOf('PASTE_YOUR')===-1; }
 
-// ---------- submit closing readings (evening) ----------
-document.getElementById('submitCloseBtn').addEventListener('click', async ()=>{
-  const msg = document.getElementById('closeMsg');
-  msg.className = 'msg'; msg.textContent = '';
-
-  const date = document.getElementById('entryDate').value;
-  if(!date){ msg.classList.add('show','bad'); msg.textContent = 'Please enter the date.'; return; }
-  if(!rowHasValues(todayRow, SHEET_OPEN_KEYS)){
-    msg.classList.add('show','bad'); msg.textContent = 'Opening readings must be saved first.'; return;
-  }
-  if(rowHasValues(todayRow, SHEET_CLOSE_KEYS)){
-    msg.classList.add('show','bad'); msg.textContent = 'Closing readings already saved today.'; return;
-  }
-  if(!isClosingWindow()){
-    msg.classList.add('show','bad'); msg.textContent = 'Closing readings can only be entered between 12:01 PM and 5:00 PM.'; return;
-  }
-
-  const opnum = key => parseFloat(todayRow[key]) || 0;
-  const data = {
-    date,
-    diesel1Open: opnum('Diesel1_Open'), diesel1Close: num('d1close'), diesel1Total: num('d1close') - opnum('Diesel1_Open'),
-    diesel2Open: opnum('Diesel2_Open'), diesel2Close: num('d2close'), diesel2Total: num('d2close') - opnum('Diesel2_Open'),
-    kero1Open: opnum('Kero1_Open'), kero1Close: num('k1close'), kero1Total: num('k1close') - opnum('Kero1_Open'),
-    kero2Open: opnum('Kero2_Open'), kero2Close: num('k2close'), kero2Total: num('k2close') - opnum('Kero2_Open'),
-    dieselTankOpen: opnum('DieselTank_Open'), dieselTankClose: num('tdclose'), dieselTankDiff: opnum('DieselTank_Open') - num('tdclose'),
-    keroTankOpen: opnum('KeroTank_Open'), keroTankClose: num('tkclose'), keroTankDiff: opnum('KeroTank_Open') - num('tkclose')
+  var state = {
+    booted:false,
+    storageOk:true,
+    view:'login',
+    loginErr:'',
+    currentUser:null,
+    items:[],
+    users:[],
+    bills:[],
+    shop:{name:'CounterBook Store', address:'No.12, Galle Road, Colombo', phone:'077 123 4567', currency:'Rs.', footer:'Thank you! Come again.', width:'80'},
+    cart:[],
+    itemSearch:'',
+    discountType:'amount',
+    discountVal:0,
+    payment:'cash',
+    chequeNo:'',
+    customerName:'',
+    lastBill:null,
+    showReceipt:false,
+    reportRange:'today',
+    adminTab:'items',
+    itemForm:null,
+    userForm:null
   };
 
-  const btn = document.getElementById('submitCloseBtn');
-  btn.textContent = 'Saving...'; btn.disabled = true;
+  function uid(prefix){ return prefix+'_'+Math.random().toString(36).slice(2,9); }
+  function money(n){ return state.shop.currency+' '+ (Math.round(n*100)/100).toFixed(2); }
+  function todayISO(){ return new Date().toISOString().slice(0,10); }
+  function monthKey(d){ return d.slice(0,7); }
 
-  try{
-    const res = await fetch(SCRIPT_URL, {
-      method:'POST',
-      headers:{'Content-Type':'text/plain;charset=utf-8'},
-      body: JSON.stringify({ action:'update', id: todayRow.ID, username: session.username, password: session.password, data })
-    });
-    const json = await res.json();
-    if(json.ok){
-      msg.classList.add('show','good');
-      msg.textContent = 'Closing readings saved successfully ✅';
-      await loadTodayStatus();
+  async function storageGet(key){
+    if(!sheetConfigured()) return null;
+    try{
+      var res = await fetch(CONFIG.SHEET_API_URL+'?action=get&key='+encodeURIComponent(key));
+      var data = await res.json();
+      return data.value ? JSON.parse(data.value) : null;
+    }catch(e){ state.storageOk=false; return null; }
+  }
+  async function storageSet(key, val){
+    if(!sheetConfigured()) return false;
+    try{
+      await fetch(CONFIG.SHEET_API_URL, {
+        method:'POST',
+        headers:{'Content-Type':'text/plain;charset=utf-8'}, // avoids CORS preflight, Apps Script can't handle OPTIONS
+        body: JSON.stringify({ key:key, value: JSON.stringify(val) })
+      });
+      state.storageOk = true;
+      return true;
+    }catch(e){ state.storageOk=false; return false; }
+  }
+
+  function seedDefaults(){
+    state.items = [
+      {id:uid('it'), name:'Rice 5kg', price:1450, stock:32, category:'Grocery'},
+      {id:uid('it'), name:'Sugar 1kg', price:280, stock:60, category:'Grocery'},
+      {id:uid('it'), name:'Milk Powder 400g', price:650, stock:18, category:'Dairy'},
+      {id:uid('it'), name:'Tea 200g', price:390, stock:25, category:'Grocery'},
+      {id:uid('it'), name:'Soap Bar', price:150, stock:5, category:'Household'},
+      {id:uid('it'), name:'Biscuits Pack', price:220, stock:40, category:'Snacks'},
+      {id:uid('it'), name:'Cooking Oil 1L', price:990, stock:14, category:'Grocery'},
+      {id:uid('it'), name:'Eggs (10)', price:340, stock:22, category:'Dairy'}
+    ];
+    state.users = [
+      {id:uid('u'), username:'admin', password:'admin123', role:'admin', name:'Shop Admin'},
+      {id:uid('u'), username:'cashier', password:'cashier123', role:'cashier', name:'Counter Staff'}
+    ];
+    state.bills = [];
+  }
+
+  async function boot(){
+    var items = await storageGet(STORE_KEY_ITEMS);
+    var users = await storageGet(STORE_KEY_USERS);
+    var bills = await storageGet(STORE_KEY_BILLS);
+    var shop = await storageGet(STORE_KEY_SHOP);
+    if(!items || !users){
+      seedDefaults();
+      await storageSet(STORE_KEY_ITEMS, state.items);
+      await storageSet(STORE_KEY_USERS, state.users);
+      await storageSet(STORE_KEY_BILLS, state.bills);
+      await storageSet(STORE_KEY_SHOP, state.shop);
     } else {
-      throw new Error(json.error || 'Unknown error');
+      state.items = items;
+      state.users = users;
+      state.bills = bills || [];
+      if(shop) state.shop = shop;
     }
-  } catch(err){
-    msg.classList.add('show','bad');
-    msg.textContent = 'Could not save. Check your internet connection and try again. (' + err.message + ')';
-    btn.disabled = false;
-  } finally {
-    btn.textContent = 'Save Closing Readings';
+    state.booted = true;
+    render();
   }
-});
 
-// ---------- admin list ----------
-let adminViewMode = 'table'; // 'table' | 'chart'
-let adminChartInstance = null;
-
-async function loadAdminList(){
-  const res = await fetch(SCRIPT_URL + '?action=list&username=' + encodeURIComponent(session.username) + '&password=' + encodeURIComponent(session.password));
-  const json = await res.json();
-  if(json.ok){
-    currentEntries = json.rows;
-    renderAdminTable();
-    if(adminViewMode === 'chart') renderAdminChart();
+  async function persist(key){
+    if(key==='items') await storageSet(STORE_KEY_ITEMS, state.items);
+    if(key==='users') await storageSet(STORE_KEY_USERS, state.users);
+    if(key==='bills') await storageSet(STORE_KEY_BILLS, state.bills);
+    if(key==='shop') await storageSet(STORE_KEY_SHOP, state.shop);
   }
-}
-document.getElementById('refreshBtn').addEventListener('click', loadAdminList);
 
-// ---------- admin table / chart toggle ----------
-document.getElementById('viewTableBtn').addEventListener('click', ()=>{
-  adminViewMode = 'table';
-  document.getElementById('viewTableBtn').classList.add('active');
-  document.getElementById('viewChartBtn').classList.remove('active');
-  document.getElementById('adminTableWrap').classList.remove('hidden');
-  document.getElementById('adminChartWrap').classList.add('hidden');
-});
-document.getElementById('viewChartBtn').addEventListener('click', ()=>{
-  adminViewMode = 'chart';
-  document.getElementById('viewChartBtn').classList.add('active');
-  document.getElementById('viewTableBtn').classList.remove('active');
-  document.getElementById('adminChartWrap').classList.remove('hidden');
-  document.getElementById('adminTableWrap').classList.add('hidden');
-  renderAdminChart();
-});
+  // ---------------- RENDER ----------------
+  function render(){
+    var app = document.getElementById('app');
+    if(!state.booted){
+      app.innerHTML = '<div class="login-wrap"><div class="empty-note">Loading CounterBook…</div></div>';
+      return;
+    }
+    if(!state.currentUser){
+      app.innerHTML = renderLogin();
+      bindLogin();
+      return;
+    }
+    app.innerHTML = renderShell();
+    bindShell();
+  }
 
-function renderAdminChart(){
-  const canvas = document.getElementById('adminChart');
-  if(!canvas || typeof Chart === 'undefined') return;
+  function renderLogin(){
+    return ''+
+    '<div class="login-wrap"><div class="login-card">'+
+      '<div class="brand"><span class="mark">Rs.</span><span class="name">CounterBook</span></div>'+
+      '<div class="tagline">Shop billing &amp; stock, on your phone or PC</div>'+
+      '<div class="field"><label>Username</label><input id="li-user" autocomplete="username" placeholder="e.g. admin"></div>'+
+      '<div class="field"><label>Password</label><input id="li-pass" type="password" autocomplete="current-password" placeholder="••••••••"></div>'+
+      (state.loginErr? '<div class="error-msg">'+state.loginErr+'</div>' : '')+
+      '<button class="btn btn-primary btn-block" id="li-submit">Log In</button>'+
+      '<div class="demo-hint">Demo accounts &mdash; <b>admin / admin123</b> (full access) and <b>cashier / cashier123</b> (billing only).'+
+        (sheetConfigured() ? ' Data is saved to your connected Google Sheet.' : ' <b>Not yet connected to Google Sheets</b> — everything you do right now is temporary. See AppsScript-Code.gs for the 5-minute setup, then paste your Web App URL into CONFIG.SHEET_API_URL near the top of this file.')+
+      '</div>'+
+    '</div></div>';
+  }
 
-  const rows = currentEntries.slice().sort((a,b)=> (a.Date < b.Date ? -1 : (a.Date > b.Date ? 1 : 0)));
-  const n = v => parseFloat(v) || 0;
-
-  const labels = rows.map(r => r.Date);
-  const dieselSold = rows.map(r => (n(r.Diesel1_Close)-n(r.Diesel1_Open)) + (n(r.Diesel2_Close)-n(r.Diesel2_Open)));
-  const keroSold = rows.map(r => (n(r.Kero1_Close)-n(r.Kero1_Open)) + (n(r.Kero2_Close)-n(r.Kero2_Open)));
-  const dieselTankClose = rows.map(r => r.DieselTank_Close === '' || r.DieselTank_Close === undefined ? null : n(r.DieselTank_Close));
-  const keroTankClose = rows.map(r => r.KeroTank_Close === '' || r.KeroTank_Close === undefined ? null : n(r.KeroTank_Close));
-
-  if(adminChartInstance){ adminChartInstance.destroy(); }
-
-  adminChartInstance = new Chart(canvas, {
-    data: {
-      labels,
-      datasets: [
-        { type:'bar', label:'Diesel Sold', data: dieselSold, backgroundColor:'#A85C24', yAxisID:'y' },
-        { type:'bar', label:'Kerosene Sold', data: keroSold, backgroundColor:'#1F6E8C', yAxisID:'y' },
-        { type:'line', label:'Diesel Tank Close', data: dieselTankClose, borderColor:'#2F5233', backgroundColor:'#2F5233', yAxisID:'y1', tension:0.3, spanGaps:true },
-        { type:'line', label:'Kero Tank Close', data: keroTankClose, borderColor:'#0B4F63', backgroundColor:'#0B4F63', yAxisID:'y1', tension:0.3, spanGaps:true }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: {
-        y: { beginAtZero:true, position:'left', title:{ display:true, text:'Liters Sold' } },
-        y1: { beginAtZero:true, position:'right', title:{ display:true, text:'Tank Balance' }, grid:{ drawOnChartArea:false } }
-      },
-      plugins: {
-        legend: { position:'bottom' }
+  function bindLogin(){
+    var btn = document.getElementById('li-submit');
+    function tryLogin(){
+      var u = document.getElementById('li-user').value.trim();
+      var p = document.getElementById('li-pass').value;
+      var found = state.users.find(function(x){ return x.username.toLowerCase()===u.toLowerCase() && x.password===p; });
+      if(found){
+        state.currentUser = found;
+        state.view = 'billing';
+        state.loginErr='';
+      } else {
+        state.loginErr = 'Incorrect username or password.';
       }
+      render();
     }
-  });
-}
-
-function renderAdminTable(){
-  const body = document.getElementById('adminTableBody');
-  body.innerHTML = '';
-  currentEntries
-    .slice()
-    .sort((a,b)=> (a.Date < b.Date ? 1 : (a.Date > b.Date ? -1 : 0)))
-    .forEach(row=>{
-      const tr = document.createElement('tr');
-      const f = v => (v === undefined || v === null || v === '') ? '—' : fmt(v);
-      tr.innerHTML = `
-        <td>${row.Date}</td>
-        <td>${row.Staff}</td>
-        <td>${f(row.Diesel1_Open)}</td>
-        <td>${f(row.Diesel1_Close)}</td>
-        <td>${f(row.Diesel2_Open)}</td>
-        <td>${f(row.Diesel2_Close)}</td>
-        <td>${f(row.Kero1_Open)}</td>
-        <td>${f(row.Kero1_Close)}</td>
-        <td>${f(row.Kero2_Open)}</td>
-        <td>${f(row.Kero2_Close)}</td>
-        <td>${f(row.DieselTank_Open)}</td>
-        <td>${f(row.DieselTank_Close)}</td>
-        <td>${f(row.KeroTank_Open)}</td>
-        <td>${f(row.KeroTank_Close)}</td>
-        <td><span class="edit-link" data-id="${row.ID}">Edit</span></td>
-      `;
-      body.appendChild(tr);
-    });
-  body.querySelectorAll('.edit-link').forEach(el=>{
-    el.addEventListener('click', ()=> openEdit(el.dataset.id));
-  });
-}
-
-function openEdit(id){
-  const row = currentEntries.find(r=>r.ID === id);
-  if(!row) return;
-  editingId = id;
-  document.getElementById('adminEditCard').classList.remove('hidden');
-  document.getElementById('editingLabel').textContent = `${row.Date} — ${row.Staff}`;
-  document.getElementById('eDate').value = row.Date;
-  document.getElementById('eStaff').value = row.Staff;
-  document.getElementById('eD1open').value = row.Diesel1_Open;
-  document.getElementById('eD1close').value = row.Diesel1_Close;
-  document.getElementById('eD2open').value = row.Diesel2_Open;
-  document.getElementById('eD2close').value = row.Diesel2_Close;
-  document.getElementById('eK1open').value = row.Kero1_Open;
-  document.getElementById('eK1close').value = row.Kero1_Close;
-  document.getElementById('eK2open').value = row.Kero2_Open;
-  document.getElementById('eK2close').value = row.Kero2_Close;
-  document.getElementById('eTDopen').value = row.DieselTank_Open;
-  document.getElementById('eTDclose').value = row.DieselTank_Close;
-  document.getElementById('eTKopen').value = row.KeroTank_Open;
-  document.getElementById('eTKclose').value = row.KeroTank_Close;
-  document.getElementById('adminEditCard').scrollIntoView({behavior:'smooth'});
-}
-
-document.getElementById('cancelEditBtn').addEventListener('click', ()=>{
-  document.getElementById('adminEditCard').classList.add('hidden');
-});
-
-document.getElementById('saveEditBtn').addEventListener('click', async ()=>{
-  const msg = document.getElementById('editMsg');
-  msg.className='msg'; msg.textContent='';
-  const eNum = id => parseFloat(document.getElementById(id).value) || 0;
-
-  const data = {
-    date: document.getElementById('eDate').value,
-    staff: document.getElementById('eStaff').value,
-    diesel1Open: eNum('eD1open'), diesel1Close: eNum('eD1close'), diesel1Total: eNum('eD1close')-eNum('eD1open'),
-    diesel2Open: eNum('eD2open'), diesel2Close: eNum('eD2close'), diesel2Total: eNum('eD2close')-eNum('eD2open'),
-    kero1Open: eNum('eK1open'), kero1Close: eNum('eK1close'), kero1Total: eNum('eK1close')-eNum('eK1open'),
-    kero2Open: eNum('eK2open'), kero2Close: eNum('eK2close'), kero2Total: eNum('eK2close')-eNum('eK2open'),
-    dieselTankOpen: eNum('eTDopen'), dieselTankClose: eNum('eTDclose'), dieselTankDiff: eNum('eTDopen')-eNum('eTDclose'),
-    keroTankOpen: eNum('eTKopen'), keroTankClose: eNum('eTKclose'), keroTankDiff: eNum('eTKopen')-eNum('eTKclose')
-  };
-
-  try{
-    const res = await fetch(SCRIPT_URL, {
-      method:'POST',
-      headers:{'Content-Type':'text/plain;charset=utf-8'},
-      body: JSON.stringify({ action:'update', id: editingId, username: session.username, password: session.password, data })
-    });
-    const json = await res.json();
-    if(json.ok){
-      msg.classList.add('show','good');
-      msg.textContent = 'Entry updated ✅';
-      await loadAdminList();
-      setTimeout(()=>{ document.getElementById('adminEditCard').classList.add('hidden'); }, 700);
-    } else {
-      throw new Error(json.error || 'Unknown error');
-    }
-  } catch(err){
-    msg.classList.add('show','bad');
-    msg.textContent = 'Could not save changes. (' + err.message + ')';
+    btn.addEventListener('click', tryLogin);
+    document.getElementById('li-pass').addEventListener('keydown', function(e){ if(e.key==='Enter') tryLogin(); });
   }
-});
 
-setInterval(()=>{ if(session) updateEntryLockState(); }, 60000);
+  function navItems(){
+    var items = [
+      {id:'billing', label:'Billing', icon:'cart', roles:['admin','cashier']},
+      {id:'stock', label:'Stock', icon:'box', roles:['admin','cashier']},
+      {id:'reports', label:'Reports', icon:'chart', roles:['admin','cashier']},
+      {id:'admin', label:'Admin', icon:'gear', roles:['admin']}
+    ];
+    return items.filter(function(i){ return i.roles.indexOf(state.currentUser.role)>=0; });
+  }
 
-checkConfigured();
+  function renderShell(){
+    var nav = navItems();
+    var navHtml = nav.map(function(n){
+      return '<button class="nav-item '+(state.view===n.id?'active':'')+'" data-nav="'+n.id+'">'+ICONS[n.icon]+'<span>'+n.label+'</span></button>';
+    }).join('');
+
+    var bottomNavHtml = nav.map(function(n){
+      return '<button class="'+(state.view===n.id?'active':'')+'" data-nav="'+n.id+'">'+ICONS[n.icon]+'<span>'+n.label+'</span></button>';
+    }).join('');
+
+    var body = '';
+    if(state.view==='billing') body = renderBilling();
+    else if(state.view==='stock') body = renderStock();
+    else if(state.view==='reports') body = renderReports();
+    else if(state.view==='admin') body = renderAdmin();
+
+    return ''+
+    '<div class="topbar">'+
+      '<div class="brand2">'+ICONS.store+'<span>'+escapeHtml(state.shop.name)+'</span></div>'+
+      '<div class="who"><span>'+escapeHtml(state.currentUser.name)+'</span><span class="role-badge">'+state.currentUser.role+'</span><button class="logout-btn" id="logout-btn">Log out</button></div>'+
+    '</div>'+
+    '<div class="layout">'+
+      '<div class="sidebar"><div class="nav-label">Menu</div>'+navHtml+'</div>'+
+      '<div class="content">'+body+'</div>'+
+    '</div>'+
+    '<div class="bottom-tabs">'+bottomNavHtml+'</div>'+
+    (state.showReceipt ? renderReceiptModal() : '');
+  }
+
+  function escapeHtml(s){ return String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+
+  // ---------------- BILLING ----------------
+  function renderBilling(){
+    var q = state.itemSearch.toLowerCase();
+    var filtered = state.items.filter(function(it){ return it.name.toLowerCase().indexOf(q)>=0; });
+    var tiles = filtered.map(function(it){
+      var low = it.stock<=5;
+      return '<button class="item-tile" data-add="'+it.id+'" '+(it.stock<=0?'disabled':'')+'>'+
+        '<span class="cat-tag">'+escapeHtml(it.category||'')+'</span>'+
+        '<span class="nm">'+escapeHtml(it.name)+'</span>'+
+        '<span class="pr">'+money(it.price)+'</span>'+
+        '<div class="st '+(low?'low':'')+'">'+(it.stock<=0?'Out of stock':it.stock+' in stock')+'</div>'+
+      '</button>';
+    }).join('');
+
+    var cartHtml;
+    if(state.cart.length===0){
+      cartHtml = '<div class="cart-empty">Cart is empty — tap an item to add it.</div>';
+    } else {
+      var lines = state.cart.map(function(c){
+        return '<div class="cart-line">'+
+          '<span class="nm">'+escapeHtml(c.name)+'</span>'+
+          '<div class="qty-ctrl"><button data-qty="-1" data-id="'+c.id+'">−</button><span>'+c.qty+'</span><button data-qty="1" data-id="'+c.id+'">+</button></div>'+
+          '<span class="line-total">'+money(c.price*c.qty)+'</span>'+
+          '<button class="rm-btn" data-remove="'+c.id+'">✕</button>'+
+        '</div>';
+      }).join('');
+      var subtotal = state.cart.reduce(function(s,c){ return s+c.price*c.qty; },0);
+      var discount = state.discountType==='percent' ? subtotal*(state.discountVal/100) : Number(state.discountVal||0);
+      discount = Math.min(discount, subtotal);
+      var total = subtotal - discount;
+
+      cartHtml = lines +
+        '<div class="discount-row">'+
+          '<select id="disc-type"><option value="amount" '+(state.discountType==='amount'?'selected':'')+'>'+state.shop.currency+' off</option><option value="percent" '+(state.discountType==='percent'?'selected':'')+'>% off</option></select>'+
+          '<input id="disc-val" type="number" min="0" value="'+state.discountVal+'" placeholder="0">'+
+        '</div>'+
+        '<div class="sum-row"><span>Subtotal</span><span class="val">'+money(subtotal)+'</span></div>'+
+        '<div class="sum-row"><span>Discount</span><span class="val">− '+money(discount)+'</span></div>'+
+        '<div class="sum-row total"><span>Total</span><span class="val">'+money(total)+'</span></div>'+
+        '<div class="pay-tabs">'+
+          ['cash','cheque','account'].map(function(p){
+            return '<button class="pay-tab '+(state.payment===p?'active':'')+'" data-pay="'+p+'">'+p.charAt(0).toUpperCase()+p.slice(1)+'</button>';
+          }).join('')+
+        '</div>'+
+        (state.payment==='cheque' ? '<div class="field"><label>Cheque No.</label><input id="cheque-no" value="'+escapeHtml(state.chequeNo)+'" placeholder="e.g. 004521"></div>' : '')+
+        (state.payment==='account' ? '<div class="field"><label>Customer name (on account)</label><input id="cust-name" value="'+escapeHtml(state.customerName)+'" placeholder="Customer name"></div>' : '')+
+        '<button class="btn btn-primary btn-block" id="complete-bill" style="margin-top:10px;">Complete &amp; Print Bill</button>';
+    }
+
+    return ''+
+      '<h1 class="page-title">Billing</h1><p class="page-sub">Tap items to add them to the current sale.</p>'+
+      '<div class="grid2">'+
+        '<div>'+
+          '<div class="search-row"><input id="item-search" placeholder="Search items…" value="'+escapeHtml(state.itemSearch)+'"></div>'+
+          '<div class="item-grid">'+(tiles||'<div class="empty-note">No items match your search.</div>')+'</div>'+
+        '</div>'+
+        '<div class="card cart-box"><div class="cart-title">Current Sale</div>'+cartHtml+'</div>'+
+      '</div>';
+  }
+
+  function currentTotals(){
+    var subtotal = state.cart.reduce(function(s,c){ return s+c.price*c.qty; },0);
+    var discount = state.discountType==='percent' ? subtotal*(state.discountVal/100) : Number(state.discountVal||0);
+    discount = Math.min(discount, subtotal);
+    return {subtotal:subtotal, discount:discount, total:subtotal-discount};
+  }
+
+  function bindBillingEvents(){
+    var search = document.getElementById('item-search');
+    if(search) search.addEventListener('input', function(e){ state.itemSearch = e.target.value; render(); });
+
+    document.querySelectorAll('[data-add]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var id = btn.getAttribute('data-add');
+        var item = state.items.find(function(i){ return i.id===id; });
+        if(!item || item.stock<=0) return;
+        var existing = state.cart.find(function(c){ return c.id===id; });
+        var inCart = existing ? existing.qty : 0;
+        if(inCart>=item.stock) return;
+        if(existing) existing.qty++;
+        else state.cart.push({id:item.id, name:item.name, price:item.price, qty:1});
+        render();
+      });
+    });
+
+    document.querySelectorAll('[data-qty]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var id = btn.getAttribute('data-id');
+        var delta = Number(btn.getAttribute('data-qty'));
+        var line = state.cart.find(function(c){ return c.id===id; });
+        var item = state.items.find(function(i){ return i.id===id; });
+        if(!line) return;
+        var newQty = line.qty + delta;
+        if(newQty<=0){ state.cart = state.cart.filter(function(c){ return c.id!==id; }); }
+        else if(item && newQty>item.stock){ /* cap at stock */ }
+        else { line.qty = newQty; }
+        render();
+      });
+    });
+
+    document.querySelectorAll('[data-remove]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var id = btn.getAttribute('data-remove');
+        state.cart = state.cart.filter(function(c){ return c.id!==id; });
+        render();
+      });
+    });
+
+    var dt = document.getElementById('disc-type');
+    if(dt) dt.addEventListener('change', function(e){ state.discountType = e.target.value; render(); });
+    var dv = document.getElementById('disc-val');
+    if(dv) dv.addEventListener('input', function(e){ state.discountVal = e.target.value; render(); });
+
+    document.querySelectorAll('[data-pay]').forEach(function(btn){
+      btn.addEventListener('click', function(){ state.payment = btn.getAttribute('data-pay'); render(); });
+    });
+    var cq = document.getElementById('cheque-no');
+    if(cq) cq.addEventListener('input', function(e){ state.chequeNo = e.target.value; });
+    var cn = document.getElementById('cust-name');
+    if(cn) cn.addEventListener('input', function(e){ state.customerName = e.target.value; });
+
+    var complete = document.getElementById('complete-bill');
+    if(complete) complete.addEventListener('click', completeBill);
+  }
+
+  async function completeBill(){
+    if(state.cart.length===0) return;
+    var totals = currentTotals();
+    var bill = {
+      id: uid('bill'),
+      no: 'B'+String(state.bills.length+1).padStart(5,'0'),
+      dateISO: new Date().toISOString(),
+      cashier: state.currentUser.name,
+      items: state.cart.map(function(c){ return {name:c.name, price:c.price, qty:c.qty}; }),
+      subtotal: totals.subtotal,
+      discount: totals.discount,
+      total: totals.total,
+      payment: state.payment,
+      chequeNo: state.payment==='cheque' ? state.chequeNo : '',
+      customer: state.payment==='account' ? state.customerName : ''
+    };
+    // decrement stock
+    state.cart.forEach(function(c){
+      var item = state.items.find(function(i){ return i.id===c.id; });
+      if(item) item.stock = Math.max(0, item.stock - c.qty);
+    });
+    state.bills.push(bill);
+    await persist('items');
+    await persist('bills');
+    state.lastBill = bill;
+    state.cart = [];
+    state.discountVal = 0;
+    state.chequeNo = '';
+    state.customerName = '';
+    state.showReceipt = true;
+    render();
+    setTimeout(function(){ window.print(); }, 250);
+  }
+
+  function renderReceiptModal(){
+    var b = state.lastBill;
+    if(!b) return '';
+    var widthClass = state.shop.width==='58' ? 'w58' : 'w80';
+    var itemsHtml = b.items.map(function(it){
+      return '<div class="r-item-row"><span class="r-item-name">'+escapeHtml(it.name)+' x'+it.qty+'</span><span>'+money(it.price*it.qty)+'</span></div>';
+    }).join('');
+    return ''+
+    '<div class="modal-bg" id="receipt-bg"><div class="modal-box" style="position:relative;">'+
+      '<button class="close-x" id="receipt-close">✕</button>'+
+      '<div id="print-area"><div class="receipt-wrap '+widthClass+'">'+
+        '<div class="r-center r-shopname">'+escapeHtml(state.shop.name)+'</div>'+
+        '<div class="r-center">'+escapeHtml(state.shop.address)+'</div>'+
+        '<div class="r-center">'+escapeHtml(state.shop.phone)+'</div>'+
+        '<div class="r-hr"></div>'+
+        '<div class="r-line"><span>Bill No</span><span>'+b.no+'</span></div>'+
+        '<div class="r-line"><span>Date</span><span>'+new Date(b.dateISO).toLocaleString()+'</span></div>'+
+        '<div class="r-line"><span>Cashier</span><span>'+escapeHtml(b.cashier)+'</span></div>'+
+        '<div class="r-hr"></div>'+
+        itemsHtml+
+        '<div class="r-hr"></div>'+
+        '<div class="r-line"><span>Subtotal</span><span>'+money(b.subtotal)+'</span></div>'+
+        '<div class="r-line"><span>Discount</span><span>-'+money(b.discount)+'</span></div>'+
+        '<div class="r-line" style="font-weight:700;"><span>TOTAL</span><span>'+money(b.total)+'</span></div>'+
+        '<div class="r-line"><span>Payment</span><span>'+b.payment.toUpperCase()+(b.chequeNo? ' #'+escapeHtml(b.chequeNo):'')+'</span></div>'+
+        (b.customer? '<div class="r-line"><span>Customer</span><span>'+escapeHtml(b.customer)+'</span></div>':'')+
+        '<div class="r-hr"></div>'+
+        '<div class="r-center">'+escapeHtml(state.shop.footer)+'</div>'+
+      '</div></div>'+
+      '<div class="modal-actions">'+
+        '<button class="btn btn-ghost" id="print-again" style="flex:1;">Print again</button>'+
+        '<button class="btn btn-primary" id="receipt-done" style="flex:1;">Done</button>'+
+      '</div>'+
+    '</div></div>';
+  }
+
+  function bindReceiptModal(){
+    var closeBtn = document.getElementById('receipt-close');
+    var doneBtn = document.getElementById('receipt-done');
+    var printBtn = document.getElementById('print-again');
+    function closeIt(){ state.showReceipt=false; render(); }
+    if(closeBtn) closeBtn.addEventListener('click', closeIt);
+    if(doneBtn) doneBtn.addEventListener('click', closeIt);
+    if(printBtn) printBtn.addEventListener('click', function(){ window.print(); });
+  }
+
+  // ---------------- STOCK ----------------
+  function renderStock(){
+    var rows = state.items.map(function(it){
+      var low = it.stock<=5;
+      return '<tr><td>'+escapeHtml(it.name)+'</td><td>'+escapeHtml(it.category||'')+'</td><td class="num">'+money(it.price)+'</td>'+
+        '<td class="num" style="'+(low?'color:var(--red);font-weight:700;':'')+'">'+it.stock+'</td>'+
+        (state.currentUser.role==='admin' ? '<td><button class="btn btn-ghost btn-sm" data-restock="'+it.id+'">+ Restock</button></td>' : '')+
+      '</tr>';
+    }).join('');
+    var lowCount = state.items.filter(function(i){ return i.stock<=5; }).length;
+    return ''+
+    '<h1 class="page-title">Stock</h1><p class="page-sub">Current inventory levels across all items.</p>'+
+    (lowCount>0 ? '<div class="note-box">'+lowCount+' item(s) are low on stock (5 or fewer left).</div>' : '')+
+    '<div class="card"><table><thead><tr><th>Item</th><th>Category</th><th>Price</th><th>Stock</th>'+(state.currentUser.role==='admin'?'<th></th>':'')+'</tr></thead><tbody>'+rows+'</tbody></table></div>';
+  }
+
+  function bindStockEvents(){
+    document.querySelectorAll('[data-restock]').forEach(function(btn){
+      btn.addEventListener('click', async function(){
+        var id = btn.getAttribute('data-restock');
+        var item = state.items.find(function(i){ return i.id===id; });
+        var val = prompt('Add stock quantity for "'+item.name+'":', '10');
+        if(val===null) return;
+        var n = parseInt(val,10);
+        if(isNaN(n) || n<=0) return;
+        item.stock += n;
+        await persist('items');
+        render();
+      });
+    });
+  }
+
+  // ---------------- REPORTS ----------------
+  function billsInRange(range){
+    var now = new Date();
+    return state.bills.filter(function(b){
+      var d = new Date(b.dateISO);
+      if(range==='today') return b.dateISO.slice(0,10)===todayISO();
+      if(range==='month') return monthKey(b.dateISO)===monthKey(now.toISOString());
+      return true;
+    });
+  }
+
+  function renderReports(){
+    var todays = billsInRange('today');
+    var monthly = billsInRange('month');
+    var all = state.bills;
+    var todaysTotal = todays.reduce(function(s,b){ return s+b.total; },0);
+    var monthlyTotal = monthly.reduce(function(s,b){ return s+b.total; },0);
+    var cashTotal = all.filter(function(b){return b.payment==='cash';}).reduce(function(s,b){return s+b.total;},0);
+    var chequeTotal = all.filter(function(b){return b.payment==='cheque';}).reduce(function(s,b){return s+b.total;},0);
+    var accountTotal = all.filter(function(b){return b.payment==='account';}).reduce(function(s,b){return s+b.total;},0);
+
+    // last 7 days bar chart
+    var days=[];
+    for(var i=6;i>=0;i--){
+      var d = new Date(); d.setDate(d.getDate()-i);
+      var iso = d.toISOString().slice(0,10);
+      var total = state.bills.filter(function(b){return b.dateISO.slice(0,10)===iso;}).reduce(function(s,b){return s+b.total;},0);
+      days.push({label:d.toLocaleDateString(undefined,{weekday:'short'}), total: total});
+    }
+    var maxDay = Math.max.apply(null, days.map(function(d){return d.total;}).concat([1]));
+    var barsHtml = days.map(function(d){
+      var h = Math.max(3, Math.round((d.total/maxDay)*100));
+      return '<div class="bar-col"><div class="bar" style="height:'+h+'px;" title="'+money(d.total)+'"></div><div class="lbl">'+d.label+'</div></div>';
+    }).join('');
+
+    var list = state.bills.slice().reverse().slice(0,25);
+    var rows = list.map(function(b){
+      return '<tr><td>'+b.no+'</td><td>'+new Date(b.dateISO).toLocaleString()+'</td><td>'+escapeHtml(b.cashier)+'</td>'+
+        '<td><span class="pill '+b.payment+'">'+b.payment+'</span></td><td class="num">'+money(b.total)+'</td></tr>';
+    }).join('');
+
+    return ''+
+    '<h1 class="page-title">Reports</h1><p class="page-sub">Daily and monthly sales overview.</p>'+
+    '<div class="stat-grid">'+
+      '<div class="stat-card accent"><div class="lbl">Today\'s Sales</div><div class="val">'+money(todaysTotal)+'</div></div>'+
+      '<div class="stat-card accent"><div class="lbl">This Month</div><div class="val">'+money(monthlyTotal)+'</div></div>'+
+      '<div class="stat-card"><div class="lbl">Cash Total</div><div class="val">'+money(cashTotal)+'</div></div>'+
+      '<div class="stat-card"><div class="lbl">Cheque Total</div><div class="val">'+money(chequeTotal)+'</div></div>'+
+      '<div class="stat-card"><div class="lbl">On Account</div><div class="val">'+money(accountTotal)+'</div></div>'+
+    '</div>'+
+    '<div class="card" style="margin-bottom:18px;"><div class="section-head"><h3>Last 7 days</h3></div><div class="bars">'+barsHtml+'</div></div>'+
+    '<div class="card"><div class="section-head"><h3>Recent Bills</h3></div>'+
+    (list.length? '<table><thead><tr><th>Bill</th><th>Date</th><th>Cashier</th><th>Payment</th><th>Total</th></tr></thead><tbody>'+rows+'</tbody></table>' : '<div class="empty-note">No bills yet — complete a sale on the Billing page.</div>')+
+    '</div>';
+  }
+
+  // ---------------- ADMIN ----------------
+  function renderAdmin(){
+    var tabs = ['items','users','shop'];
+    var tabBtns = tabs.map(function(t){
+      var label = t==='items'?'Items & Prices':t==='users'?'Users':'Shop & Bill Settings';
+      return '<button class="nav-item" style="width:auto;display:inline-flex;'+(state.adminTab===t?'background:var(--green);color:#fff;':'background:var(--paper-dark);color:var(--ink);')+'border-radius:20px;padding:7px 14px;margin-right:8px;" data-atab="'+t+'">'+label+'</button>';
+    }).join('');
+
+    var body = '';
+    if(state.adminTab==='items') body = renderAdminItems();
+    else if(state.adminTab==='users') body = renderAdminUsers();
+    else body = renderAdminShop();
+
+    return '<h1 class="page-title">Admin</h1><p class="page-sub">Fully customize items, users, and bill details.</p>'+
+      '<div style="margin-bottom:16px;">'+tabBtns+'</div>'+body;
+  }
+
+  function renderAdminItems(){
+    var rows = state.items.map(function(it){
+      return '<div class="list-row"><div class="main"><div class="t1">'+escapeHtml(it.name)+'</div><div class="t2">'+escapeHtml(it.category||'—')+' &middot; '+money(it.price)+' &middot; stock '+it.stock+'</div></div>'+
+        '<button class="btn btn-ghost btn-sm" data-edit-item="'+it.id+'">Edit</button>'+
+        '<button class="btn btn-danger btn-sm" data-del-item="'+it.id+'">Delete</button>'+
+      '</div>';
+    }).join('');
+
+    var form = state.itemForm;
+    var formHtml = '';
+    if(form){
+      formHtml = '<div class="card" style="margin-top:14px;">'+
+        '<div class="section-head"><h3>'+(form.id?'Edit item':'Add new item')+'</h3></div>'+
+        '<div class="form-row">'+
+          '<div class="field"><label>Name</label><input id="f-name" value="'+escapeHtml(form.name)+'"></div>'+
+          '<div class="field"><label>Category</label><input id="f-cat" value="'+escapeHtml(form.category)+'"></div>'+
+        '</div>'+
+        '<div class="form-row">'+
+          '<div class="field"><label>Price ('+state.shop.currency+')</label><input id="f-price" type="number" min="0" value="'+form.price+'"></div>'+
+          '<div class="field"><label>Stock qty</label><input id="f-stock" type="number" min="0" value="'+form.stock+'"></div>'+
+        '</div>'+
+        '<div style="display:flex;gap:8px;"><button class="btn btn-primary" id="f-save">Save item</button><button class="btn btn-ghost" id="f-cancel">Cancel</button></div>'+
+      '</div>';
+    }
+
+    return '<div class="card"><div class="section-head"><h3>Items ('+state.items.length+')</h3><button class="btn btn-amber btn-sm" id="add-item-btn">+ Add Item</button></div>'+rows+'</div>'+formHtml;
+  }
+
+  function renderAdminUsers(){
+    var rows = state.users.map(function(u){
+      return '<div class="list-row"><div class="main"><div class="t1">'+escapeHtml(u.name)+' <span class="badge-role '+u.role+'">'+u.role+'</span></div><div class="t2">username: '+escapeHtml(u.username)+'</div></div>'+
+        (u.username!=='admin' ? '<button class="btn btn-danger btn-sm" data-del-user="'+u.id+'">Remove</button>' : '')+
+      '</div>';
+    }).join('');
+
+    var form = state.userForm;
+    var formHtml='';
+    if(form){
+      formHtml = '<div class="card" style="margin-top:14px;">'+
+        '<div class="section-head"><h3>Add new user</h3></div>'+
+        '<div class="form-row">'+
+          '<div class="field"><label>Full name</label><input id="u-name" value="'+escapeHtml(form.name)+'"></div>'+
+          '<div class="field"><label>Username</label><input id="u-username" value="'+escapeHtml(form.username)+'"></div>'+
+        '</div>'+
+        '<div class="form-row">'+
+          '<div class="field"><label>Password</label><input id="u-pass" value="'+escapeHtml(form.password)+'"></div>'+
+          '<div class="field"><label>Role</label><select id="u-role"><option value="cashier" '+(form.role==='cashier'?'selected':'')+'>Cashier</option><option value="admin" '+(form.role==='admin'?'selected':'')+'>Admin</option></select></div>'+
+        '</div>'+
+        (state.userFormErr? '<div class="error-msg">'+state.userFormErr+'</div>':'')+
+        '<div style="display:flex;gap:8px;"><button class="btn btn-primary" id="u-save">Save user</button><button class="btn btn-ghost" id="u-cancel">Cancel</button></div>'+
+      '</div>';
+    }
+
+    return '<div class="card"><div class="section-head"><h3>Users ('+state.users.length+')</h3><button class="btn btn-amber btn-sm" id="add-user-btn">+ Add User</button></div>'+rows+'</div>'+formHtml;
+  }
+
+  function renderAdminShop(){
+    var s = state.shop;
+    return '<div class="card">'+
+      '<div class="section-head"><h3>Shop details (appears on printed bills)</h3></div>'+
+      '<div class="form-row"><div class="field"><label>Shop name</label><input id="s-name" value="'+escapeHtml(s.name)+'"></div></div>'+
+      '<div class="form-row"><div class="field"><label>Address</label><input id="s-address" value="'+escapeHtml(s.address)+'"></div></div>'+
+      '<div class="form-row">'+
+        '<div class="field"><label>Phone</label><input id="s-phone" value="'+escapeHtml(s.phone)+'"></div>'+
+        '<div class="field"><label>Currency symbol</label><input id="s-currency" value="'+escapeHtml(s.currency)+'"></div>'+
+      '</div>'+
+      '<div class="form-row">'+
+        '<div class="field"><label>Footer note</label><input id="s-footer" value="'+escapeHtml(s.footer)+'"></div>'+
+        '<div class="field"><label>Receipt width</label><select id="s-width"><option value="58" '+(s.width==='58'?'selected':'')+'>58mm</option><option value="80" '+(s.width==='80'?'selected':'')+'>80mm</option></select></div>'+
+      '</div>'+
+      '<button class="btn btn-primary" id="s-save">Save shop settings</button>'+
+    '</div>';
+  }
+
+  function bindAdminEvents(){
+    document.querySelectorAll('[data-atab]').forEach(function(btn){
+      btn.addEventListener('click', function(){ state.adminTab = btn.getAttribute('data-atab'); state.itemForm=null; state.userForm=null; render(); });
+    });
+
+    // items
+    var addItemBtn = document.getElementById('add-item-btn');
+    if(addItemBtn) addItemBtn.addEventListener('click', function(){ state.itemForm = {id:null, name:'', category:'', price:0, stock:0}; render(); });
+    document.querySelectorAll('[data-edit-item]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var it = state.items.find(function(i){ return i.id===btn.getAttribute('data-edit-item'); });
+        state.itemForm = Object.assign({}, it);
+        render();
+      });
+    });
+    document.querySelectorAll('[data-del-item]').forEach(function(btn){
+      btn.addEventListener('click', async function(){
+        var id = btn.getAttribute('data-del-item');
+        if(!confirm('Delete this item?')) return;
+        state.items = state.items.filter(function(i){ return i.id!==id; });
+        await persist('items');
+        render();
+      });
+    });
+    var fSave = document.getElementById('f-save');
+    if(fSave) fSave.addEventListener('click', async function(){
+      var name = document.getElementById('f-name').value.trim();
+      var cat = document.getElementById('f-cat').value.trim();
+      var price = parseFloat(document.getElementById('f-price').value)||0;
+      var stock = parseInt(document.getElementById('f-stock').value,10)||0;
+      if(!name) return;
+      if(state.itemForm.id){
+        var it = state.items.find(function(i){ return i.id===state.itemForm.id; });
+        it.name=name; it.category=cat; it.price=price; it.stock=stock;
+      } else {
+        state.items.push({id:uid('it'), name:name, category:cat, price:price, stock:stock});
+      }
+      await persist('items');
+      state.itemForm = null;
+      render();
+    });
+    var fCancel = document.getElementById('f-cancel');
+    if(fCancel) fCancel.addEventListener('click', function(){ state.itemForm=null; render(); });
+
+    // users
+    var addUserBtn = document.getElementById('add-user-btn');
+    if(addUserBtn) addUserBtn.addEventListener('click', function(){ state.userForm = {name:'', username:'', password:'', role:'cashier'}; state.userFormErr=''; render(); });
+    document.querySelectorAll('[data-del-user]').forEach(function(btn){
+      btn.addEventListener('click', async function(){
+        var id = btn.getAttribute('data-del-user');
+        if(!confirm('Remove this user?')) return;
+        state.users = state.users.filter(function(u){ return u.id!==id; });
+        await persist('users');
+        render();
+      });
+    });
+    var uSave = document.getElementById('u-save');
+    if(uSave) uSave.addEventListener('click', async function(){
+      var name = document.getElementById('u-name').value.trim();
+      var username = document.getElementById('u-username').value.trim();
+      var password = document.getElementById('u-pass').value;
+      var role = document.getElementById('u-role').value;
+      if(!name || !username || !password){ state.userFormErr='All fields are required.'; render(); return; }
+      if(state.users.some(function(u){ return u.username.toLowerCase()===username.toLowerCase(); })){
+        state.userFormErr='That username is already taken.'; render(); return;
+      }
+      state.users.push({id:uid('u'), name:name, username:username, password:password, role:role});
+      await persist('users');
+      state.userForm=null;
+      render();
+    });
+    var uCancel = document.getElementById('u-cancel');
+    if(uCancel) uCancel.addEventListener('click', function(){ state.userForm=null; render(); });
+
+    // shop settings
+    var sSave = document.getElementById('s-save');
+    if(sSave) sSave.addEventListener('click', async function(){
+      state.shop.name = document.getElementById('s-name').value.trim() || state.shop.name;
+      state.shop.address = document.getElementById('s-address').value.trim();
+      state.shop.phone = document.getElementById('s-phone').value.trim();
+      state.shop.currency = document.getElementById('s-currency').value.trim() || 'Rs.';
+      state.shop.footer = document.getElementById('s-footer').value.trim();
+      state.shop.width = document.getElementById('s-width').value;
+      await persist('shop');
+      render();
+    });
+  }
+
+  // ---------------- SHELL BIND ----------------
+  function bindShell(){
+    document.getElementById('logout-btn').addEventListener('click', function(){
+      state.currentUser = null;
+      state.cart = [];
+      render();
+    });
+    document.querySelectorAll('[data-nav]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        state.view = btn.getAttribute('data-nav');
+        state.itemForm=null; state.userForm=null;
+        render();
+      });
+    });
+    if(state.view==='billing') bindBillingEvents();
+    if(state.view==='stock') bindStockEvents();
+    if(state.view==='admin') bindAdminEvents();
+    if(state.showReceipt) bindReceiptModal();
+  }
+
+  boot();
+})();
 </script>
-
 </body>
 </html>
