@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Fuel Register</title>
+<style>
+  :root{
+    --bg:#F6F2E9;
+    --card:#FFFFFF;
+    --ink:#242322;
+    --ink-soft:#6b665f;
+    --diesel:#A85C24;
+    --diesel-bg:#FBEEE0;
+    --kero:#1F6E8C;
+    --kero-bg:#E7F2F6;
+    --tank:#2F5233;
+    --tank-bg:#EAF1E8;
+    --line:#E4DDD0;
+    --good:#2F7D45;
+    --bad:#B23A2E;
+    --radius:16px;
+    --shadow:0 2px 10px rgba(40,30,10,0.06);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:"Segoe UI", Verdana, Arial, sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    padding-bottom:60px;
+  }
+  header{
+    background:var(--ink);
+    color:#fff;
+    padding:22px 20px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  header h1{ font-size:1.25rem; margin:0; letter-spacing:0.3px; }
+  header .tag{ font-size:0.8rem; color:#cfcac0; }
+  header .who{ font-size:0.85rem; color:#e8e4da; }
+  nav{ display:flex; gap:8px; }
+  nav button{
+    background:transparent; border:1px solid #55524b; color:#fff;
+    padding:8px 16px; border-radius:999px; font-size:0.9rem; cursor:pointer;
+  }
+  nav button.active{ background:#fff; color:var(--ink); border-color:#fff; font-weight:600; }
+  main{ max-width:760px; margin:0 auto; padding:20px 16px 100px; }
+  .card{ background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); padding:20px; margin-bottom:18px; }
+  .card h2{ margin:0 0 4px; font-size:1.15rem; }
+  .card .sub{ color:var(--ink-soft); font-size:0.9rem; margin-bottom:16px; }
+  label{ display:block; font-size:0.85rem; color:var(--ink-soft); margin-bottom:4px; }
+  input, select{
+    width:100%; padding:14px; font-size:1.1rem; border-radius:10px;
+    border:1.5px solid var(--line); background:#fff; color:var(--ink);
+  }
+  input:focus, select:focus{ outline:none; border-color:var(--ink); }
+  .row{ display:flex; gap:12px; flex-wrap:wrap; }
+  .row > div{ flex:1 1 140px; }
+  .pump{ border-radius:14px; padding:16px; margin-bottom:14px; border:1.5px solid var(--line); }
+  .pump.diesel{ background:var(--diesel-bg); border-color:#EAD3B6; }
+  .pump.kero{ background:var(--kero-bg); border-color:#C9E1EA; }
+  .pump.tankd{ background:var(--tank-bg); border-color:#CFE1CC; }
+  .pump.tankk{ background:var(--kero-bg); border-color:#C9E1EA; }
+  .pump-title{ font-weight:700; margin-bottom:10px; display:flex; align-items:center; justify-content:space-between; }
+  .pump.diesel .pump-title{ color:var(--diesel); }
+  .pump.kero .pump-title{ color:var(--kero); }
+  .pump.tankd .pump-title{ color:var(--tank); }
+  .pump.tankk .pump-title{ color:var(--kero); }
+  .total-pill{ background:#fff; padding:6px 12px; border-radius:999px; font-size:0.9rem; font-weight:600; }
+  .submit-btn{
+    width:100%; padding:16px; font-size:1.15rem; font-weight:700; color:#fff;
+    background:var(--ink); border:none; border-radius:12px; cursor:pointer; margin-top:8px;
+  }
+  .submit-btn:active{ transform: scale(0.99); }
+  .msg{ padding:14px 16px; border-radius:12px; margin-bottom:16px; font-weight:600; display:none; }
+  .msg.show{ display:block; }
+  .msg.good{ background:#E4F3E7; color:var(--good); }
+  .msg.bad{ background:#FBE7E4; color:var(--bad); }
+  .summary-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px; }
+  .summary-grid div{ background:#F6F2E9; border-radius:10px; padding:12px; text-align:center; }
+  .summary-grid .num{ font-size:1.3rem; font-weight:700; display:block; }
+  .summary-grid .lbl{ font-size:0.8rem; color:var(--ink-soft); }
+  table{ width:100%; border-collapse:collapse; font-size:0.85rem; }
+  th, td{ padding:10px 8px; border-bottom:1px solid var(--line); text-align:left; white-space:nowrap; }
+  th{ color:var(--ink-soft); font-weight:600; }
+  .edit-link{ color:var(--kero); cursor:pointer; font-weight:600; text-decoration:underline; }
+  .table-wrap{ overflow-x:auto; }
+  .hidden{ display:none !important; }
+  .setup-warning{
+    background:#FFF4E5; border:1.5px solid #F0C98A; color:#7A5300;
+    padding:14px 16px; border-radius:12px; margin-bottom:16px; font-size:0.9rem;
+  }
+  .small-btn{ padding:8px 14px; border-radius:8px; border:1.5px solid var(--line); background:#fff; cursor:pointer; font-size:0.9rem; }
+  .login-wrap{ max-width:400px; margin:60px auto; padding:0 16px; }
+  .login-logo{ text-align:center; font-size:2.4rem; margin-bottom:6px; }
+  .login-title{ text-align:center; font-size:1.3rem; font-weight:700; margin-bottom:4px; }
+  .login-sub{ text-align:center; color:var(--ink-soft); margin-bottom:22px; font-size:0.95rem; }
+  .logout-link{ color:#e8e4da; text-decoration:underline; cursor:pointer; font-size:0.85rem; }
+</style>
+</head>
+<body>
+
+<div id="loginScreen" class="login-wrap">
+  <div class="login-logo">⛽</div>
+  <div class="login-title">Daily Fuel Register</div>
+  <div class="login-sub">Log in to enter today's readings</div>
+  <div class="card">
+    <div id="setupWarning" class="setup-warning hidden">
+      ⚠️ This page isn't connected to Google Sheets yet. Open <code>index.html</code> and set
+      <code>SCRIPT_URL</code> to your Apps Script Web App URL. See SETUP_INSTRUCTIONS.md.
+    </div>
+    <label>Username</label>
+    <input type="text" id="loginUser" autocomplete="username">
+    <div style="margin-top:12px;">
+      <label>Password</label>
+      <input type="password" id="loginPass" autocomplete="current-password">
+    </div>
+    <button class="submit-btn" id="loginBtn" style="margin-top:16px;">Log In</button>
+    <div id="loginMsg" class="msg"></div>
+  </div>
+</div>
+
+<div id="appScreen" class="hidden">
+
+<header>
+  <div>
+    <h1>⛽ Daily Fuel Register</h1>
+    <div class="who" id="whoLabel"></div>
+  </div>
+  <nav>
+    <button id="navEntry" class="active">New Entry</button>
+    <button id="navAdmin" class="hidden">Admin</button>
+    <span class="logout-link" id="logoutBtn">Log out</span>
+  </nav>
+</header>
+
+<main>
+
+  <!-- ============ ENTRY VIEW ============ -->
+  <section id="entryView">
+
+    <div class="card">
+      <h2>Today's Date</h2>
+      <input type="date" id="entryDate">
+    </div>
+
+    <div class="card">
+      <h2>Fuel Pumps</h2>
+      <div class="sub">Enter today's opening and closing meter readings</div>
+
+      <div class="pump diesel">
+        <div class="pump-title">Diesel Pump 1 <span class="total-pill" id="d1total">0.00 L sold</span></div>
+        <div class="row">
+          <div><label>Opening reading</label><input type="number" step="0.01" inputmode="decimal" id="d1open"></div>
+          <div><label>Closing reading</label><input type="number" step="0.01" inputmode="decimal" id="d1close"></div>
+        </div>
+      </div>
+
+      <div class="pump diesel">
+        <div class="pump-title">Diesel Pump 2 <span class="total-pill" id="d2total">0.00 L sold</span></div>
+        <div class="row">
+          <div><label>Opening reading</label><input type="number" step="0.01" inputmode="decimal" id="d2open"></div>
+          <div><label>Closing reading</label><input type="number" step="0.01" inputmode="decimal" id="d2close"></div>
+        </div>
+      </div>
+
+      <div class="pump kero">
+        <div class="pump-title">Kerosene Pump 1 <span class="total-pill" id="k1total">0.00 L sold</span></div>
+        <div class="row">
+          <div><label>Opening reading</label><input type="number" step="0.01" inputmode="decimal" id="k1open"></div>
+          <div><label>Closing reading</label><input type="number" step="0.01" inputmode="decimal" id="k1close"></div>
+        </div>
+      </div>
+
+      <div class="pump kero">
+        <div class="pump-title">Kerosene Pump 2 <span class="total-pill" id="k2total">0.00 L sold</span></div>
+        <div class="row">
+          <div><label>Opening reading</label><input type="number" step="0.01" inputmode="decimal" id="k2open"></div>
+          <div><label>Closing reading</label><input type="number" step="0.01" inputmode="decimal" id="k2close"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Tank Balances</h2>
+      <div class="sub">Enter today's opening and closing tank levels (liters)</div>
+
+      <div class="pump tankd">
+        <div class="pump-title">Diesel Tank <span class="total-pill" id="tdtotal">0.00 L used</span></div>
+        <div class="row">
+          <div><label>Opening balance</label><input type="number" step="0.01" inputmode="decimal" id="tdopen"></div>
+          <div><label>Closing balance</label><input type="number" step="0.01" inputmode="decimal" id="tdclose"></div>
+        </div>
+      </div>
+
+      <div class="pump tankk">
+        <div class="pump-title">Kerosene Tank <span class="total-pill" id="tktotal">0.00 L used</span></div>
+        <div class="row">
+          <div><label>Opening balance</label><input type="number" step="0.01" inputmode="decimal" id="tkopen"></div>
+          <div><label>Closing balance</label><input type="number" step="0.01" inputmode="decimal" id="tkclose"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="entryMsg" class="msg"></div>
+
+    <button class="submit-btn" id="submitBtn">Save Today's Readings</button>
+
+    <div class="card" id="summaryCard" style="display:none;">
+      <h2>Today's Summary</h2>
+      <div class="summary-grid">
+        <div><span class="num" id="sumDiesel">0</span><span class="lbl">Total Diesel Sold (L)</span></div>
+        <div><span class="num" id="sumKero">0</span><span class="lbl">Total Kerosene Sold (L)</span></div>
+        <div><span class="num" id="sumTankD">0</span><span class="lbl">Diesel Tank Closing (L)</span></div>
+        <div><span class="num" id="sumTankK">0</span><span class="lbl">Kerosene Tank Closing (L)</span></div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ============ ADMIN VIEW (admin only) ============ -->
+  <section id="adminView" class="hidden">
+
+    <div class="card">
+      <h2>Past Entries</h2>
+      <div class="sub">All laborer entries. Tap "Edit" to correct any entry.</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Date</th><th>Entered by</th><th>Diesel Sold</th><th>Kero Sold</th><th>Diesel Tank Close</th><th>Kero Tank Close</th><th></th></tr>
+          </thead>
+          <tbody id="adminTableBody"></tbody>
+        </table>
+      </div>
+      <button class="small-btn" id="refreshBtn" style="margin-top:12px;">Refresh List</button>
+    </div>
+
+    <div class="card hidden" id="adminEditCard">
+      <h2>Edit Entry</h2>
+      <div class="sub" id="editingLabel"></div>
+      <div class="row">
+        <div><label>Date</label><input type="date" id="eDate"></div>
+        <div><label>Staff</label><input type="text" id="eStaff"></div>
+      </div>
+
+      <div class="pump diesel" style="margin-top:14px;">
+        <div class="pump-title">Diesel Pump 1</div>
+        <div class="row"><div><label>Opening</label><input type="number" step="0.01" id="eD1open"></div><div><label>Closing</label><input type="number" step="0.01" id="eD1close"></div></div>
+      </div>
+      <div class="pump diesel">
+        <div class="pump-title">Diesel Pump 2</div>
+        <div class="row"><div><label>Opening</label><input type="number" step="0.01" id="eD2open"></div><div><label>Closing</label><input type="number" step="0.01" id="eD2close"></div></div>
+      </div>
+      <div class="pump kero">
+        <div class="pump-title">Kerosene Pump 1</div>
+        <div class="row"><div><label>Opening</label><input type="number" step="0.01" id="eK1open"></div><div><label>Closing</label><input type="number" step="0.01" id="eK1close"></div></div>
+      </div>
+      <div class="pump kero">
+        <div class="pump-title">Kerosene Pump 2</div>
+        <div class="row"><div><label>Opening</label><input type="number" step="0.01" id="eK2open"></div><div><label>Closing</label><input type="number" step="0.01" id="eK2close"></div></div>
+      </div>
+      <div class="pump tankd">
+        <div class="pump-title">Diesel Tank</div>
+        <div class="row"><div><label>Opening</label><input type="number" step="0.01" id="eTDopen"></div><div><label>Closing</label><input type="number" step="0.01" id="eTDclose"></div></div>
+      </div>
+      <div class="pump tankk">
+        <div class="pump-title">Kerosene Tank</div>
+        <div class="row"><div><label>Opening</label><input type="number" step="0.01" id="eTKopen"></div><div><label>Closing</label><input type="number" step="0.01" id="eTKclose"></div></div>
+      </div>
+
+      <button class="submit-btn" id="saveEditBtn">Save Changes</button>
+      <button class="small-btn" id="cancelEditBtn" style="margin-top:10px;">Cancel</button>
+      <div id="editMsg" class="msg"></div>
+    </div>
+
+  </section>
+
+</main>
+</div>
+
+<script>
+// =========================================================
+// CONFIG - paste your Google Apps Script Web App URL below
+// =========================================================
+const SCRIPT_URL = "PASTE_YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE";
+
+let session = null; // {username, role, fullName, password}
+let currentEntries = [];
+let editingId = null;
+
+function fmt(n){ return (isNaN(n) ? 0 : n).toFixed(2); }
+function num(id){ return parseFloat(document.getElementById(id).value) || 0; }
+function todayStr(){
+  const d = new Date();
+  const off = d.getTimezoneOffset();
+  const local = new Date(d.getTime() - off*60000);
+  return local.toISOString().split('T')[0];
+}
+function checkConfigured(){
+  if(SCRIPT_URL.indexOf('PASTE_YOUR') === 0){
+    document.getElementById('setupWarning').classList.remove('hidden');
+    return false;
+  }
+  return true;
+}
+
+// ---------- login ----------
+document.getElementById('loginBtn').addEventListener('click', async ()=>{
+  const msg = document.getElementById('loginMsg');
+  msg.className='msg'; msg.textContent='';
+  const username = document.getElementById('loginUser').value.trim();
+  const password = document.getElementById('loginPass').value;
+
+  if(!username || !password){
+    msg.classList.add('show','bad'); msg.textContent='Enter your username and password.'; return;
+  }
+  if(!checkConfigured()){
+    msg.classList.add('show','bad'); msg.textContent='This page is not connected to Google Sheets yet.'; return;
+  }
+
+  document.getElementById('loginBtn').textContent = 'Logging in...';
+  try{
+    const res = await fetch(SCRIPT_URL, {
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify({ action:'login', username, password })
+    });
+    const json = await res.json();
+    if(json.ok){
+      session = { username: json.user.username, role: json.user.role, fullName: json.user.fullName, password };
+      startApp();
+    } else {
+      msg.classList.add('show','bad'); msg.textContent = json.error || 'Login failed';
+    }
+  } catch(err){
+    msg.classList.add('show','bad'); msg.textContent = 'Could not connect. (' + err.message + ')';
+  } finally {
+    document.getElementById('loginBtn').textContent = 'Log In';
+  }
+});
+
+function startApp(){
+  document.getElementById('loginScreen').classList.add('hidden');
+  document.getElementById('appScreen').classList.remove('hidden');
+  document.getElementById('whoLabel').textContent = session.fullName + ' (' + session.role + ')';
+  if(session.role === 'admin'){
+    document.getElementById('navAdmin').classList.remove('hidden');
+  }
+  document.getElementById('entryDate').value = todayStr();
+}
+
+document.getElementById('logoutBtn').addEventListener('click', ()=>{
+  session = null;
+  document.getElementById('appScreen').classList.add('hidden');
+  document.getElementById('loginScreen').classList.remove('hidden');
+  document.getElementById('loginUser').value = '';
+  document.getElementById('loginPass').value = '';
+});
+
+// ---------- live totals ----------
+function updateTotals(){
+  document.getElementById('d1total').textContent = fmt(num('d1close') - num('d1open')) + ' L sold';
+  document.getElementById('d2total').textContent = fmt(num('d2close') - num('d2open')) + ' L sold';
+  document.getElementById('k1total').textContent = fmt(num('k1close') - num('k1open')) + ' L sold';
+  document.getElementById('k2total').textContent = fmt(num('k2close') - num('k2open')) + ' L sold';
+  document.getElementById('tdtotal').textContent = fmt(num('tdopen') - num('tdclose')) + ' L used';
+  document.getElementById('tktotal').textContent = fmt(num('tkopen') - num('tkclose')) + ' L used';
+}
+document.querySelectorAll('#entryView input[type=number]').forEach(el=>{
+  el.addEventListener('input', updateTotals);
+});
+
+// ---------- navigation ----------
+document.getElementById('navEntry').addEventListener('click', ()=>{
+  document.getElementById('navEntry').classList.add('active');
+  document.getElementById('navAdmin').classList.remove('active');
+  document.getElementById('entryView').classList.remove('hidden');
+  document.getElementById('adminView').classList.add('hidden');
+});
+document.getElementById('navAdmin').addEventListener('click', ()=>{
+  document.getElementById('navAdmin').classList.add('active');
+  document.getElementById('navEntry').classList.remove('active');
+  document.getElementById('adminView').classList.remove('hidden');
+  document.getElementById('entryView').classList.add('hidden');
+  loadAdminList();
+});
+
+// ---------- submit new entry ----------
+document.getElementById('submitBtn').addEventListener('click', async ()=>{
+  const msg = document.getElementById('entryMsg');
+  msg.className = 'msg'; msg.textContent='';
+
+  const date = document.getElementById('entryDate').value;
+  if(!date){ msg.classList.add('show','bad'); msg.textContent = 'Please enter the date.'; return; }
+
+  const data = {
+    date,
+    diesel1Open: num('d1open'), diesel1Close: num('d1close'), diesel1Total: num('d1close')-num('d1open'),
+    diesel2Open: num('d2open'), diesel2Close: num('d2close'), diesel2Total: num('d2close')-num('d2open'),
+    kero1Open: num('k1open'), kero1Close: num('k1close'), kero1Total: num('k1close')-num('k1open'),
+    kero2Open: num('k2open'), kero2Close: num('k2close'), kero2Total: num('k2close')-num('k2open'),
+    dieselTankOpen: num('tdopen'), dieselTankClose: num('tdclose'), dieselTankDiff: num('tdopen')-num('tdclose'),
+    keroTankOpen: num('tkopen'), keroTankClose: num('tkclose'), keroTankDiff: num('tkopen')-num('tkclose')
+  };
+
+  document.getElementById('submitBtn').textContent = 'Saving...';
+  document.getElementById('submitBtn').disabled = true;
+
+  try{
+    const res = await fetch(SCRIPT_URL, {
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify({ action:'add', username: session.username, password: session.password, data })
+    });
+    const json = await res.json();
+    if(json.ok){
+      msg.classList.add('show','good');
+      msg.textContent = "Today's readings saved successfully ✅";
+      document.getElementById('summaryCard').style.display = 'block';
+      document.getElementById('sumDiesel').textContent = fmt(data.diesel1Total + data.diesel2Total);
+      document.getElementById('sumKero').textContent = fmt(data.kero1Total + data.kero2Total);
+      document.getElementById('sumTankD').textContent = fmt(data.dieselTankClose);
+      document.getElementById('sumTankK').textContent = fmt(data.keroTankClose);
+    } else {
+      throw new Error(json.error || 'Unknown error');
+    }
+  } catch(err){
+    msg.classList.add('show','bad');
+    msg.textContent = 'Could not save. Check your internet connection and try again. (' + err.message + ')';
+  } finally {
+    document.getElementById('submitBtn').textContent = "Save Today's Readings";
+    document.getElementById('submitBtn').disabled = false;
+  }
+});
+
+// ---------- admin list ----------
+async function loadAdminList(){
+  const res = await fetch(SCRIPT_URL + '?action=list&username=' + encodeURIComponent(session.username) + '&password=' + encodeURIComponent(session.password));
+  const json = await res.json();
+  if(json.ok){ currentEntries = json.rows; renderAdminTable(); }
+}
+document.getElementById('refreshBtn').addEventListener('click', loadAdminList);
+
+function renderAdminTable(){
+  const body = document.getElementById('adminTableBody');
+  body.innerHTML = '';
+  currentEntries
+    .slice()
+    .sort((a,b)=> (a.Date < b.Date ? 1 : -1))
+    .forEach(row=>{
+      const tr = document.createElement('tr');
+      const dieselSold = (row.Diesel1_Total||0) + (row.Diesel2_Total||0);
+      const keroSold = (row.Kero1_Total||0) + (row.Kero2_Total||0);
+      tr.innerHTML = `
+        <td>${row.Date}</td>
+        <td>${row.Staff}</td>
+        <td>${fmt(dieselSold)}</td>
+        <td>${fmt(keroSold)}</td>
+        <td>${fmt(row.DieselTank_Close)}</td>
+        <td>${fmt(row.KeroTank_Close)}</td>
+        <td><span class="edit-link" data-id="${row.ID}">Edit</span></td>
+      `;
+      body.appendChild(tr);
+    });
+  body.querySelectorAll('.edit-link').forEach(el=>{
+    el.addEventListener('click', ()=> openEdit(el.dataset.id));
+  });
+}
+
+function openEdit(id){
+  const row = currentEntries.find(r=>r.ID === id);
+  if(!row) return;
+  editingId = id;
+  document.getElementById('adminEditCard').classList.remove('hidden');
+  document.getElementById('editingLabel').textContent = `${row.Date} — ${row.Staff}`;
+  document.getElementById('eDate').value = row.Date;
+  document.getElementById('eStaff').value = row.Staff;
+  document.getElementById('eD1open').value = row.Diesel1_Open;
+  document.getElementById('eD1close').value = row.Diesel1_Close;
+  document.getElementById('eD2open').value = row.Diesel2_Open;
+  document.getElementById('eD2close').value = row.Diesel2_Close;
+  document.getElementById('eK1open').value = row.Kero1_Open;
+  document.getElementById('eK1close').value = row.Kero1_Close;
+  document.getElementById('eK2open').value = row.Kero2_Open;
+  document.getElementById('eK2close').value = row.Kero2_Close;
+  document.getElementById('eTDopen').value = row.DieselTank_Open;
+  document.getElementById('eTDclose').value = row.DieselTank_Close;
+  document.getElementById('eTKopen').value = row.KeroTank_Open;
+  document.getElementById('eTKclose').value = row.KeroTank_Close;
+  document.getElementById('adminEditCard').scrollIntoView({behavior:'smooth'});
+}
+
+document.getElementById('cancelEditBtn').addEventListener('click', ()=>{
+  document.getElementById('adminEditCard').classList.add('hidden');
+});
+
+document.getElementById('saveEditBtn').addEventListener('click', async ()=>{
+  const msg = document.getElementById('editMsg');
+  msg.className='msg'; msg.textContent='';
+  const eNum = id => parseFloat(document.getElementById(id).value) || 0;
+
+  const data = {
+    date: document.getElementById('eDate').value,
+    staff: document.getElementById('eStaff').value,
+    diesel1Open: eNum('eD1open'), diesel1Close: eNum('eD1close'), diesel1Total: eNum('eD1close')-eNum('eD1open'),
+    diesel2Open: eNum('eD2open'), diesel2Close: eNum('eD2close'), diesel2Total: eNum('eD2close')-eNum('eD2open'),
+    kero1Open: eNum('eK1open'), kero1Close: eNum('eK1close'), kero1Total: eNum('eK1close')-eNum('eK1open'),
+    kero2Open: eNum('eK2open'), kero2Close: eNum('eK2close'), kero2Total: eNum('eK2close')-eNum('eK2open'),
+    dieselTankOpen: eNum('eTDopen'), dieselTankClose: eNum('eTDclose'), dieselTankDiff: eNum('eTDopen')-eNum('eTDclose'),
+    keroTankOpen: eNum('eTKopen'), keroTankClose: eNum('eTKclose'), keroTankDiff: eNum('eTKopen')-eNum('eTKclose')
+  };
+
+  try{
+    const res = await fetch(SCRIPT_URL, {
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify({ action:'update', id: editingId, username: session.username, password: session.password, data })
+    });
+    const json = await res.json();
+    if(json.ok){
+      msg.classList.add('show','good');
+      msg.textContent = 'Entry updated ✅';
+      await loadAdminList();
+      setTimeout(()=>{ document.getElementById('adminEditCard').classList.add('hidden'); }, 700);
+    } else {
+      throw new Error(json.error || 'Unknown error');
+    }
+  } catch(err){
+    msg.classList.add('show','bad');
+    msg.textContent = 'Could not save changes. (' + err.message + ')';
+  }
+});
+
+checkConfigured();
+</script>
+
+</body>
+</html>
